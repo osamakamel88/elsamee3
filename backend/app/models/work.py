@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -12,11 +12,16 @@ class Work(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     title_ar = Column(String, nullable=True)
-    work_type = Column(String, nullable=False) # audio, image
+    work_type = Column(String, nullable=False) # audio, image, lyrics, composition
+    composer = Column(String, nullable=True) # الملحن
+    lyricist = Column(String, nullable=True) # الشاعر / كاتب الكلمات
+    performer = Column(String, nullable=True) # المطرب / المؤدي
+    arranger = Column(String, nullable=True) # الموزع الموسيقي
+    lyrics_text = Column(Text, nullable=True) # نص الكلمات الكامل
     description = Column(String, nullable=True)
     description_ar = Column(String, nullable=True)
-    isrc = Column(String, nullable=True, index=True)
-    iswc = Column(String, nullable=True, index=True)
+    isrc = Column(String, nullable=True, index=True) # Recording ID
+    iswc = Column(String, nullable=True, index=True) # Musical Composition ID
     metadata_json = Column(JSON, nullable=True)
     file_path = Column(String, nullable=True)
     file_hash = Column(String, nullable=True)

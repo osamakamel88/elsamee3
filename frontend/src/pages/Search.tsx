@@ -176,10 +176,10 @@ export default function Search() {
           <Shield size={14} />
           <span>{isRTL ? 'حماية حقوق الملحنين والشعراء والمؤلفين الموسيقيين' : 'Copyright Vault for Composers, Lyricists & Songwriters'}</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight px-1">
           {isRTL ? 'البحث عن الألحان والكلمات والجمعيات العربية' : 'Search Melodies, Lyrics & Arab Copyright Societies'}
         </h1>
-        <p className="text-slate-600 text-sm max-w-2xl mx-auto">
+        <p className="text-slate-600 text-xs sm:text-sm max-w-2xl mx-auto px-1">
           {isRTL
             ? 'فحص شامل يشمل جمعية المؤلفين والملحنين بمصر (SACERAU)، هيئة الملكية الفكرية السعودية (SAIP)، ديوان ONDA بالجزائر، ومكتب BMDA بالمغرب، مع دعم البصمة النصية لكتاب الكلمات ورموز ISWC للملحنين.'
             : 'Cross-query Arab collecting societies (SACERAU, SAIP, ONDA, BMDA, OTPDA), ISWC composition registers, and international repertoires.'}

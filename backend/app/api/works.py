@@ -16,8 +16,17 @@ from app.services.fingerprint.lyrics_matcher import compute_lyrics_fingerprint
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+import tempfile
+
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "uploads")
+else:
+    UPLOAD_DIR = "uploads"
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception:
+    pass
 
 @router.get("", response_model=WorkListResponse)
 async def list_works(skip: int = 0, limit: int = 100, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):

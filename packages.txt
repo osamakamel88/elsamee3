@@ -1,3 +1,2 @@
 ffmpeg
-libchromaprint-dev
-fpcalc
+libchromaprint-tools

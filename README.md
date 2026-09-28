@@ -114,7 +114,7 @@ By combining classical acoustic fingerprinting with deep-learning neural vector 
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/elsamee3/elsamee3.git
+git clone https://github.com/osamakamel88/elsamee3.git
 cd elsamee3
 ```
 

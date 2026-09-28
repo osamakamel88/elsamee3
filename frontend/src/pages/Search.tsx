@@ -4,7 +4,7 @@ import api from '../api/client';
 import SearchBar from '../components/SearchBar';
 import ResultCard, { ResultItem } from '../components/ResultCard';
 import { toast } from 'react-hot-toast';
-import { Shield, Database, Loader2, Info, ArrowUpRight, Feather, Building2, Music } from 'lucide-react';
+import { Shield, Database, Loader2, Info, ArrowUpRight, Feather, Building2, Copy, CheckCircle2, Lock } from 'lucide-react';
 
 export default function Search() {
   const { t, i18n } = useTranslation();
@@ -14,12 +14,14 @@ export default function Search() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(false);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [lyricsFingerprint, setLyricsFingerprint] = useState<any>(null);
   const [searchMeta, setSearchMeta] = useState<{ query: string; detectedType: string; count: number } | null>(null);
 
   const handleSearch = async (queryText: string, category: string = 'all') => {
     setActiveCategory(category);
     setLoading(true);
     setHasSearched(true);
+    setLyricsFingerprint(null);
 
     try {
       const response = await api.post('/search', { query: queryText });
@@ -47,16 +49,17 @@ export default function Search() {
   const handleLyricsSearch = async (lyrics: string) => {
     setLoading(true);
     setHasSearched(true);
-    setActiveCategory('lyricist');
-    toast(isRTL ? 'جاري فحص ومطابقة نصوص الكلمات عبر البصمة النصية...' : 'Computing lyrics hash and scanning archives...', { icon: '✍️' });
+    setActiveCategory('all');
+    toast(isRTL ? 'جاري فحص ومطابقة نصوص الكلمات وتوليد البصمة المشفرة...' : 'Computing lyrics hash and scanning archives...', { icon: '✍️' });
 
     try {
       const response = await api.post('/search/lyrics', { lyrics });
       const data = response.data;
       const matches = data.matches || [];
       setResults(matches);
+      setLyricsFingerprint(data.fingerprint);
       setSearchMeta({
-        query: lyrics.slice(0, 40) + '...',
+        query: lyrics.trim().split('\n')[0].slice(0, 45) + '...',
         detectedType: 'lyrics_fingerprint',
         count: matches.length,
       });
@@ -64,11 +67,11 @@ export default function Search() {
       if (matches.length > 0) {
         toast.success(isRTL ? `تم فحص البصمة ومطابقة ${matches.length} عمل محتمل!` : `Computed lyrics fingerprint and matched ${matches.length} works!`);
       } else {
-        toast(isRTL ? 'البصمة فريدة! لا يوجد تطابق مسجل مسبقاً لهذه الكلمات.' : 'Lyrics fingerprint is unique! No conflicting registrations found.', { icon: '✨' });
+        toast.success(isRTL ? 'البصمة فريدة! لا يوجد تطابق مسجل مسبقاً لهذه الكلمات.' : 'Lyrics fingerprint is unique! No conflicting registrations found.', { icon: '✨' });
       }
     } catch (err) {
       console.error('Lyrics search failed:', err);
-      toast.error(isRTL ? 'فشل فحص الكلمات.' : 'Failed to scan lyrics.');
+      toast.error(isRTL ? 'فشل فحص الكلمات، يرجى المحاولة ثانية.' : 'Failed to scan lyrics. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -77,6 +80,7 @@ export default function Search() {
   const handleFileSearch = async (file: File, type: 'audio' | 'image') => {
     setLoading(true);
     setHasSearched(true);
+    setLyricsFingerprint(null);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -105,6 +109,13 @@ export default function Search() {
     }
   };
 
+  const copyTextHash = () => {
+    if (lyricsFingerprint?.text_hash) {
+      navigator.clipboard.writeText(lyricsFingerprint.text_hash);
+      toast.success(isRTL ? 'تم نسخ البصمة المشفرة SHA-256!' : 'SHA-256 hash copied!');
+    }
+  };
+
   // Filter results by selected category
   const filteredResults = results.filter((item) => {
     if (activeCategory === 'all') return true;
@@ -112,7 +123,14 @@ export default function Search() {
       return item.type === 'composer' || item.type === 'work' || item.type === 'composition_match' || (item.iswc && item.iswc.length > 0) || item.source.includes('MusicBrainz Works');
     }
     if (activeCategory === 'lyricist') {
-      return item.type === 'lyricist' || item.type === 'lyrics' || item.type === 'lyrics_match' || (item.author && item.author.toLowerCase().includes('lyricist'));
+      return (
+        item.type === 'lyricist' ||
+        item.type === 'lyrics' ||
+        item.type === 'lyrics_match' ||
+        item.type === 'composition_match' ||
+        item.source.includes('Lyrics') ||
+        (item.author && item.author.toLowerCase().includes('lyricist'))
+      );
     }
     if (activeCategory === 'arab_cmo') {
       return item.type === 'arab_cmo' || item.source.includes('Arab Repertoire');
@@ -201,6 +219,47 @@ export default function Search() {
                 ? 'جاري فحص قواعد بيانات الملحنين والشعراء والجمعيات العربية...'
                 : 'Querying composer, lyricist, and Arab copyright society registries...'}
             </p>
+          </div>
+        )}
+
+        {/* Cryptographic Proof of Authorship Certificate Banner for Lyricists */}
+        {lyricsFingerprint && (
+          <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-6 rounded-3xl shadow-lg border border-purple-700/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-purple-500/20 text-purple-300 rounded-xl border border-purple-400/30">
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base">
+                    {isRTL ? 'شهادة البصمة الرقمية للكلمات والقصيدة (Proof of Authorship)' : 'Cryptographic Proof of Authorship Certificate'}
+                  </h3>
+                  <p className="text-[11px] text-purple-200">
+                    {isRTL
+                      ? 'بصمة مشفرة لا رجعة فيها تُثبت أسبقية كتابة المصنف الأدبي لدى منصة السميع'
+                      : 'Irreversible cryptographic hash proving anteriority and ownership on elsamee3 vault'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={copyTextHash}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-semibold text-white transition-colors"
+              >
+                <Copy size={13} />
+                <span>{isRTL ? 'نسخ البصمة المشفرة' : 'Copy Hash'}</span>
+              </button>
+            </div>
+
+            <div className="bg-black/30 p-3 rounded-2xl border border-white/10 font-mono text-xs text-purple-200 break-all select-all flex items-center justify-between">
+              <span>SHA-256: {lyricsFingerprint.text_hash}</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs text-purple-200 pt-1">
+              <span>{isRTL ? 'عدد الكلمات:' : 'Word Count:'} <strong>{lyricsFingerprint.word_count}</strong></span>
+              <span>{isRTL ? 'المفردات الفريدة:' : 'Unique Vocabulary:'} <strong>{lyricsFingerprint.unique_word_count}</strong></span>
+              <span>{isRTL ? 'المقاطع اللفظية المفحوصة:' : 'Analyzed Shingles:'} <strong>{lyricsFingerprint.shingle_count}</strong></span>
+            </div>
           </div>
         )}
 

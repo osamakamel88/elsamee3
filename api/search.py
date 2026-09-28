@@ -18,9 +18,46 @@ async def _init_db_if_needed():
     global _db_initialized
     if not _db_initialized:
         try:
-            from app.database import engine, Base
+            from app.database import engine, Base, AsyncSessionLocal
+            from app.models.writer_watchlist import WriterWatchlist
+            from app.models.user import User
+            from sqlalchemy.future import select
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
+
+            async with AsyncSessionLocal() as session:
+                existing = await session.execute(select(WriterWatchlist).limit(1))
+                if not existing.scalar_one_or_none():
+                    user_res = await session.execute(select(User).limit(1))
+                    user = user_res.scalar_one_or_none()
+                    if not user:
+                        user = User(
+                            username="elsamee3_admin",
+                            email="admin@elsamee3.com",
+                            hashed_password="hashed_placeholder",
+                            full_name="السميع (elsamee3)",
+                            country="EG"
+                        )
+                        session.add(user)
+                        await session.commit()
+                        await session.refresh(user)
+
+                    handler_obj = WriterWatchlist(
+                        user_id=user.id,
+                        name="Bassem Adel (باسم عادل)",
+                        legal_name="BASSEM ADEL EL SAID HASSAN",
+                        ipi_number="00883594582",
+                        role="lyricist",
+                        aliases=["باسم عادل", "Bassem Adel", "BASSEM ADEL EL SAID HASSAN", "Bassem Adel Hassan"],
+                        publishers=["Mazzika Group", "S D R M"],
+                        mlc_ip_id=17589818,
+                        monitoring_enabled=True,
+                        monitoring_frequency_hours=12,
+                        works_count=38,
+                        mlc_works_count=38
+                    )
+                    session.add(handler_obj)
+                    await session.commit()
             _db_initialized = True
         except Exception as e:
             print(f"Serverless DB init notice: {e}")

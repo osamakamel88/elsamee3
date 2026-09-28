@@ -8,9 +8,8 @@ from app.schemas.search import SearchQuery, UnifiedSearchResponse, SearchResult
 from app.services.search.unified_search import detect_query_type
 from app.services.search import (
     musicbrainz_client,
-    openverse_client,
-    huggingface_client,
-    github_client
+    discogs_client,
+    openverse_client
 )
 from app.services.fingerprint.image_fingerprint import fingerprint_image
 from app.services.fingerprint.audio_fingerprint import fingerprint_audio
@@ -28,7 +27,7 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
     detected_type = detect_query_type(query)
     results = []
 
-    # 1. Search local registered works in database
+    # 1. Search local registered works in elsamee3 vault
     try:
         stmt = select(Work).where(
             or_(
@@ -43,13 +42,13 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
         for w in db_res.scalars().all():
             results.append(SearchResult(
                 title=w.title,
-                artist="Registered Artist",
+                artist="Protected Artist",
                 author="Registered Creator",
-                source="elsamee3 Local Registry",
+                source="elsamee3 Vault",
                 type=w.work_type,
                 isrc=w.isrc,
                 iswc=w.iswc,
-                description=w.description or f"Protected {w.work_type} in elsamee3 vault",
+                description=w.description or f"Protected {w.work_type} in elsamee3 registry",
                 confidence=1.0
             ))
     except Exception as e:
@@ -65,15 +64,16 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
         for r in mb_iswc:
             results.append(SearchResult(**r))
     else:
-        # 3. Query all global sources in parallel: MusicBrainz, Openverse, Hugging Face, GitHub
+        # 3. Query creative music & visual arts databases in parallel
+        # Note: HuggingFace & Git models remain exclusively in the backend engine
         tasks = [
             musicbrainz_client.search_artist(query),
             musicbrainz_client.search_recording(query),
+            musicbrainz_client.search_work(query),
+            discogs_client.search_artist(query, limit=6),
+            discogs_client.search_release(query, limit=6),
             openverse_client.search_images(query, limit=8),
-            openverse_client.search_audio(query, limit=5),
-            huggingface_client.search_models(query, limit=6),
-            huggingface_client.search_datasets(query, limit=4),
-            github_client.search_repositories(query, limit=6)
+            openverse_client.search_audio(query, limit=6)
         ]
         
         gathered = await asyncio.gather(*tasks, return_exceptions=True)
@@ -102,12 +102,12 @@ async def search_by_audio(file: UploadFile = File(...), db: AsyncSession = Depen
 
     try:
         fp_data = await fingerprint_audio(tmp_path)
-        # Search Openverse or local registry for similar audio
+        ov_results = await openverse_client.search_audio(file.filename.split(".")[0], limit=6)
         return {
             "status": "success",
             "filename": file.filename,
             "fingerprint": fp_data,
-            "matches": []
+            "matches": ov_results
         }
     finally:
         if os.path.exists(tmp_path):
@@ -123,7 +123,6 @@ async def search_by_image(file: UploadFile = File(...), db: AsyncSession = Depen
 
     try:
         fp_data = await fingerprint_image(tmp_path)
-        # Use Openverse images API as reverse query
         ov_results = await openverse_client.search_images(file.filename.split(".")[0], limit=6)
         return {
             "status": "success",

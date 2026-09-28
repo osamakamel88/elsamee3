@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ExternalLink, ShieldCheck, FileText, Music, Sparkles, GitBranch, Image as ImageIcon, Download, Star, Heart } from 'lucide-react';
+import { ExternalLink, ShieldCheck, FileText, Music, User, Disc, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 export interface ResultItem {
@@ -16,9 +16,6 @@ export interface ResultItem {
   isrc?: string;
   iswc?: string;
   license?: string;
-  stars?: number;
-  downloads?: number;
-  likes?: number;
   confidence?: number;
 }
 
@@ -32,14 +29,11 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
   const { t } = useTranslation();
 
   const getSourceBadgeStyle = (source: string) => {
-    if (source.includes('Hugging Face')) {
-      return 'bg-amber-50 text-amber-700 border-amber-200';
-    }
-    if (source.includes('GitHub')) {
-      return 'bg-purple-50 text-purple-700 border-purple-200';
-    }
     if (source.includes('MusicBrainz')) {
       return 'bg-blue-50 text-blue-700 border-blue-200';
+    }
+    if (source.includes('Discogs')) {
+      return 'bg-amber-50 text-amber-800 border-amber-200';
     }
     if (source.includes('Openverse')) {
       return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -47,11 +41,11 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
     return 'bg-slate-50 text-slate-700 border-slate-200';
   };
 
-  const getSourceIcon = (source: string, type?: string) => {
-    if (source.includes('Hugging Face')) return <Sparkles size={16} className="text-amber-600" />;
-    if (source.includes('GitHub')) return <GitBranch size={16} className="text-purple-600" />;
-    if (type === 'visual_artwork' || source.includes('Openverse')) return <ImageIcon size={16} className="text-emerald-600" />;
-    return <Music size={16} className="text-blue-600" />;
+  const getSourceIcon = (type?: string, source?: string) => {
+    if (type === 'artist') return <User size={15} className="text-blue-600" />;
+    if (type === 'release' || source?.includes('Discogs')) return <Disc size={15} className="text-amber-600" />;
+    if (type === 'visual_artwork' || source?.includes('Openverse')) return <ImageIcon size={15} className="text-emerald-600" />;
+    return <Music size={15} className="text-blue-600" />;
   };
 
   return (
@@ -60,7 +54,7 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${getSourceBadgeStyle(item.source)}`}>
-              {getSourceIcon(item.source, item.type)}
+              {getSourceIcon(item.type, item.source)}
               {item.source}
             </span>
             {item.type && (
@@ -91,31 +85,16 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
             </p>
           )}
 
-          {/* Metrics / Identifiers */}
-          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-500">
+          {/* Identifiers */}
+          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-500">
             {item.isrc && (
-              <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">
+              <span className="font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold border border-blue-100">
                 ISRC: {item.isrc}
               </span>
             )}
             {item.iswc && (
-              <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">
+              <span className="font-mono bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-semibold border border-purple-100">
                 ISWC: {item.iswc}
-              </span>
-            )}
-            {item.stars !== undefined && item.stars > 0 && (
-              <span className="inline-flex items-center gap-1 text-purple-600 font-medium">
-                <Star size={14} className="fill-purple-600" /> {item.stars.toLocaleString()} stars
-              </span>
-            )}
-            {item.downloads !== undefined && item.downloads > 0 && (
-              <span className="inline-flex items-center gap-1 text-amber-600 font-medium">
-                <Download size={14} /> {item.downloads.toLocaleString()} downloads
-              </span>
-            )}
-            {item.likes !== undefined && item.likes > 0 && (
-              <span className="inline-flex items-center gap-1 text-rose-600 font-medium">
-                <Heart size={14} className="fill-rose-500" /> {item.likes.toLocaleString()} likes
               </span>
             )}
           </div>
@@ -140,7 +119,7 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs font-medium text-brand-blue hover:text-blue-700 hover:underline"
             >
-              <span>View Source</span>
+              <span>View Repertoire Entry</span>
               <ExternalLink size={13} />
             </a>
           )}

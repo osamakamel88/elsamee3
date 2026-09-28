@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Mic, Image as ImageIcon, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, Mic, Image as ImageIcon, X, ArrowRight, Loader2 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
 interface SearchBarProps {
@@ -54,11 +54,10 @@ export default function SearchBar({ onSearch, onFileSearch, isLoading }: SearchB
   });
 
   const filterTabs = [
-    { id: 'all', label: isRTL ? 'جميع المصادر' : 'All Sources', icon: null },
-    { id: 'music', label: isRTL ? '🎵 الموسيقى والتسجيلات' : '🎵 Music & Works', icon: null },
-    { id: 'visual', label: isRTL ? '🖼️ الفنون البصرية' : '🖼️ Visual Art', icon: null },
-    { id: 'huggingface', label: isRTL ? '🤖 نماذج الذكاء الاصطناعي (HF)' : '🤖 Hugging Face (AI Models)', icon: Sparkles },
-    { id: 'github', label: isRTL ? '💻 مستودعات كود ومصادر (GitHub)' : '💻 GitHub (Code & Leaks)', icon: null },
+    { id: 'all', label: isRTL ? 'جميع الأعمال والفنانين' : 'All Works & Artists' },
+    { id: 'artist', label: isRTL ? '🎤 الفنانون والمبدعون' : '🎤 Artists & Creators' },
+    { id: 'music', label: isRTL ? '🎵 التسجيلات والأغاني' : '🎵 Music & Recordings' },
+    { id: 'visual', label: isRTL ? '🖼️ الفنون البصرية والصور' : '🖼️ Visual Art & Images' },
   ];
 
   return (
@@ -129,7 +128,7 @@ export default function SearchBar({ onSearch, onFileSearch, isLoading }: SearchB
         </button>
       </form>
 
-      {/* Source Category Filter Chips */}
+      {/* Category Filter Chips */}
       <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
         {filterTabs.map((tab) => (
           <button

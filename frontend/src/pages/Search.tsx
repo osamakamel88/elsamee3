@@ -4,7 +4,7 @@ import api from '../api/client';
 import SearchBar from '../components/SearchBar';
 import ResultCard, { ResultItem } from '../components/ResultCard';
 import { toast } from 'react-hot-toast';
-import { Sparkles, Database, Loader2, Info, ArrowUpRight } from 'lucide-react';
+import { Shield, Database, Loader2, Info, ArrowUpRight } from 'lucide-react';
 
 export default function Search() {
   const { t, i18n } = useTranslation();
@@ -32,7 +32,7 @@ export default function Search() {
       });
 
       if (data.results && data.results.length > 0) {
-        toast.success(isRTL ? `تم العثور على ${data.results.length} نتيجة!` : `Found ${data.results.length} records!`);
+        toast.success(isRTL ? `تم العثور على ${data.results.length} عمل وسجل فني!` : `Found ${data.results.length} creative records!`);
       } else {
         toast(isRTL ? 'لم يتم العثور على نتائج، جرب كلمة أخرى.' : 'No direct records found. Try another query.', { icon: '🔍' });
       }
@@ -51,7 +51,7 @@ export default function Search() {
     formData.append('file', file);
 
     const endpoint = type === 'audio' ? '/search/audio' : '/search/image';
-    toast(isRTL ? `جاري تحليل وبصمة ملف ${file.name}...` : `Fingerprinting and analyzing ${file.name}...`, { icon: '🧬' });
+    toast(isRTL ? `جاري استخراج البصمة لملف ${file.name}...` : `Extracting acoustic/visual fingerprint for ${file.name}...`, { icon: '🧬' });
 
     try {
       const response = await api.post(endpoint, formData, {
@@ -66,7 +66,7 @@ export default function Search() {
         count: matches.length,
       });
 
-      toast.success(isRTL ? `تم استخراج البصمة بنجاح!` : `Fingerprint computed successfully!`);
+      toast.success(isRTL ? `تم استخراج البصمة والبحث بنجاح!` : `Fingerprint computed and searched successfully!`);
     } catch (err: any) {
       console.error('File search error:', err);
       toast.error(isRTL ? 'فشل فحص الملف.' : 'Failed to analyze file.');
@@ -78,17 +78,14 @@ export default function Search() {
   // Filter results by selected category
   const filteredResults = results.filter((item) => {
     if (activeCategory === 'all') return true;
+    if (activeCategory === 'artist') {
+      return item.type === 'artist' || item.source.includes('Artist');
+    }
     if (activeCategory === 'music') {
-      return item.source.includes('MusicBrainz') || item.type === 'recording' || item.type === 'artist' || item.type === 'work';
+      return item.type === 'recording' || item.type === 'work' || item.type === 'release' || item.source.includes('MusicBrainz') || item.source.includes('Discogs');
     }
     if (activeCategory === 'visual') {
-      return item.source.includes('Openverse') || item.type === 'visual_artwork';
-    }
-    if (activeCategory === 'huggingface') {
-      return item.source.includes('Hugging Face') || item.type === 'ai_model' || item.type === 'ai_dataset';
-    }
-    if (activeCategory === 'github') {
-      return item.source.includes('GitHub') || item.type === 'code_repository';
+      return item.type === 'visual_artwork' || item.type === 'image' || item.source.includes('Openverse');
     }
     return true;
   });
@@ -98,16 +95,16 @@ export default function Search() {
       {/* Header */}
       <div className="text-center space-y-2 pt-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-brand-blue text-xs font-semibold mb-2">
-          <Sparkles size={14} />
-          <span>{isRTL ? 'محرك البحث وحماية الحقوق العالمي' : 'Global Copyright & AI Protection Engine'}</span>
+          <Shield size={14} />
+          <span>{isRTL ? 'حماية وبحث حقوق النشر والتسجيلات الفنية' : 'Artist Repertoire & Copyright Database'}</span>
         </div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          {isRTL ? 'البحث عن الفنانين والأعمال والتسريبات' : 'Search Artists, Works & AI Models'}
+          {isRTL ? 'البحث عن الفنانين والأعمال والتسجيلات' : 'Search Artists, Works & Master Recordings'}
         </h1>
         <p className="text-slate-600 text-sm max-w-xl mx-auto">
           {isRTL
-            ? 'ابحث عبر MusicBrainz و Openverse ومستودعات GitHub ونماذج Hugging Face للكشف عن استغلال أعمالك أو نسخها.'
-            : 'Cross-query MusicBrainz, Openverse, GitHub repositories, and Hugging Face AI models to detect misuse or copyright breaches.'}
+            ? 'ابحث في قواعد البيانات العالمية (MusicBrainz, Discogs, Openverse) وخزينة السميع للتحقق من ملكية الحقوق ومراقبة الانتهاكات.'
+            : 'Search documented artist profiles, master recordings (ISRC), compositions (ISWC), and visual art to verify ownership and protect your work.'}
         </p>
       </div>
 
@@ -127,8 +124,8 @@ export default function Search() {
             <Loader2 className="w-10 h-10 animate-spin text-brand-blue" />
             <p className="text-sm font-medium">
               {isRTL
-                ? 'جاري فحص قواعد البيانات العالمية (MusicBrainz, Hugging Face, GitHub, Openverse)...'
-                : 'Querying global databases (MusicBrainz, Hugging Face, GitHub, Openverse)...'}
+                ? 'جاري فحص قواعد بيانات الفنانين والتسجيلات العالمية...'
+                : 'Querying global artist repertoires and registries (MusicBrainz, Discogs, Openverse)...'}
             </p>
           </div>
         )}
@@ -148,8 +145,8 @@ export default function Search() {
               </div>
               <span className="text-slate-500 font-semibold">
                 {isRTL
-                  ? `عرض ${filteredResults.length} من إجمالي ${results.length} نتيجة`
-                  : `Showing ${filteredResults.length} of ${results.length} total results`}
+                  ? `عرض ${filteredResults.length} من إجمالي ${results.length} سجل`
+                  : `Showing ${filteredResults.length} of ${results.length} total records`}
               </span>
             </div>
 
@@ -168,8 +165,8 @@ export default function Search() {
                 </h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto">
                   {isRTL
-                    ? 'جرب النقر على زر "جميع المصادر" أو كتابة اسم آخر للبحث عبر الشبكات الأخرى.'
-                    : 'Try selecting "All Sources" or broadening your search terms.'}
+                    ? 'جرب النقر على زر "جميع الأعمال والفنانين" أو كتابة اسم آخر للبحث عبر قواعد البيانات الفنية.'
+                    : 'Try selecting "All Works & Artists" or broadening your search terms.'}
                 </p>
               </div>
             )}
@@ -179,10 +176,10 @@ export default function Search() {
         {!loading && !hasSearched && (
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4 shadow-sm">
             <h3 className="font-bold text-slate-800 text-base">
-              {isRTL ? '💡 اقتراحات لبدء البحث الفوري' : '💡 Try quick example searches'}
+              {isRTL ? '💡 اقتراحات لبدء البحث الفوري' : '💡 Try quick example artist & music searches'}
             </h3>
             <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto">
-              {['Amr Diab', 'Adele', 'Basem', 'Fairuz', 'Beethoven', 'Leonardo da Vinci', 'LoRA voice'].map((example) => (
+              {['Amr Diab', 'Adele', 'Basem', 'Fairuz', 'Oum Kalthoum', 'Beethoven', 'Leonardo da Vinci'].map((example) => (
                 <button
                   key={example}
                   onClick={() => handleSearch(example, 'all')}

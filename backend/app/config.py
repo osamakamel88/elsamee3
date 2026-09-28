@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/elsamee3"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./elsamee3.db"
     REDIS_URL: str = "redis://localhost:6379/0"
     SECRET_KEY: str = "supersecretkey_change_in_production"
     ALGORITHM: str = "HS256"
@@ -14,6 +14,6 @@ class Settings(BaseSettings):
     GOOGLE_VISION_API_KEY: Optional[str] = None
     YOUTUBE_API_KEY: Optional[str] = None
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

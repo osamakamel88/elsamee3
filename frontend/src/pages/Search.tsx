@@ -120,16 +120,32 @@ export default function Search() {
   const filteredResults = results.filter((item) => {
     if (activeCategory === 'all') return true;
     if (activeCategory === 'composer') {
-      return item.type === 'composer' || item.type === 'work' || item.type === 'composition_match' || (item.iswc && item.iswc.length > 0) || item.source.includes('MusicBrainz Works');
+      return (
+        item.type === 'composer' ||
+        item.type === 'work' ||
+        item.type === 'composition' ||
+        item.type === 'composition_match' ||
+        item.type === 'songwriter_profile' ||
+        (item.iswc && item.iswc.length > 0) ||
+        item.source.includes('The MLC') ||
+        item.source.includes('SACEM') ||
+        item.source.includes('MusicBrainz Works')
+      );
     }
     if (activeCategory === 'lyricist') {
       return (
         item.type === 'lyricist' ||
         item.type === 'lyrics' ||
         item.type === 'lyrics_match' ||
+        item.type === 'composition' ||
         item.type === 'composition_match' ||
+        item.type === 'songwriter_profile' ||
         item.source.includes('Lyrics') ||
-        (item.author && item.author.toLowerCase().includes('lyricist'))
+        item.source.includes('The MLC') ||
+        item.source.includes('SACEM') ||
+        (item.author && item.author.toLowerCase().includes('lyricist')) ||
+        (item.artist && item.artist.toLowerCase().includes('lyricist')) ||
+        (item.artist && item.artist.includes('شاعر'))
       );
     }
     if (activeCategory === 'arab_cmo') {

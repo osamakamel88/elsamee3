@@ -30,6 +30,36 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to elsamee3 API"}
+# Mount React Frontend SPA if built, otherwise provide API welcome & docs link
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+if not os.path.exists(static_dir):
+    # Mono-repo fallback: ../frontend/dist
+    static_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist"))
+
+if os.path.exists(static_dir) and os.path.exists(os.path.join(static_dir, "index.html")):
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Allow /docs and /openapi.json to pass through
+        if full_path in ("docs", "redoc", "openapi.json"):
+            return None
+        file_path = os.path.join(static_dir, full_path)
+        if full_path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(static_dir, "index.html"))
+else:
+    @app.get("/")
+    async def root():
+        return {
+            "name": "elsamee3 API (السميع)",
+            "status": "online",
+            "docs": "/docs",
+            "message": "Copyright Guardian API for Musicians, Composers & Lyricists"
+        }

@@ -1,7 +1,6 @@
-import axios from 'react';
-import axiosInstance from 'axios';
+import axios from 'axios';
 
-const client = axiosInstance.create({
+const client = axios.create({
   baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
@@ -19,9 +18,14 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only redirect to login if not already on public pages
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const publicPaths = ['/login', '/register', '/search'];
+      const isPublicPath = publicPaths.some((path) => window.location.pathname.startsWith(path));
+      if (!isPublicPath) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

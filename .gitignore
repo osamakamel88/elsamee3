@@ -30,3 +30,7 @@ Thumbs.db
 
 # Docker
 *.log
+
+# Scratch & local DB
+scratch/
+*.db

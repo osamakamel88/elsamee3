@@ -4,3 +4,4 @@ from .fingerprint import Fingerprint
 from .alert import Alert
 from .scan_job import ScanJob
 from .takedown import Takedown
+from .writer_watchlist import WriterWatchlist

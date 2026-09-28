@@ -11,6 +11,8 @@ from app.services.search import (
     discogs_client,
     openverse_client
 )
+from app.services.search.mlc_client import mlc_client
+from app.services.search.sacem_client import sacem_client
 from app.services.search.arab_copyright_directory import search_arab_cmo_directory
 from app.services.fingerprint.image_fingerprint import fingerprint_image
 from app.services.fingerprint.audio_fingerprint import fingerprint_audio
@@ -98,7 +100,9 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
             discogs_client.search_artist(query, limit=6),
             discogs_client.search_release(query, limit=6),
             openverse_client.search_images(query, limit=6),
-            openverse_client.search_audio(query, limit=4)
+            openverse_client.search_audio(query, limit=4),
+            mlc_client.search_writers(query, size=5),
+            sacem_client.search_works_by_writer(query)
         ]
         
         gathered = await asyncio.gather(*tasks, return_exceptions=True)
@@ -106,7 +110,34 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
             if isinstance(g_res, list):
                 for item in g_res:
                     try:
-                        results.append(SearchResult(**item))
+                        # Handle MLC writer item
+                        if "ip_id" in item and "works_count" in item:
+                            results.append(SearchResult(
+                                title=f"{item.get('full_name')} (IPI: {item.get('ipi_number') or 'N/A'})",
+                                author=item.get('full_name'),
+                                artist="Songwriter / Lyricist / Composer",
+                                source="The MLC (Mechanical Licensing Collective)",
+                                type="songwriter_profile",
+                                url="https://portal.themlc.com/search",
+                                description=f"Registered Songwriter with {item.get('works_count')} works on The MLC (IPI: {item.get('ipi_number') or 'N/A'})",
+                                confidence=1.0
+                            ))
+                        # Handle SACEM work item
+                        elif item.get("source") == "SACEM / CISAC Repertoire":
+                            writers_str = ", ".join([w.get("name") for w in item.get("writers", [])])
+                            results.append(SearchResult(
+                                title=item.get("title"),
+                                author=writers_str or "SACEM Registered Author",
+                                artist="SACEM / SDRM Repertoire",
+                                source="SACEM de Paris",
+                                type="composition",
+                                iswc=item.get("iswc"),
+                                url=f"https://repertoire.sacem.fr",
+                                description=f"Registered in SACEM/SDRM collective repertoire (ISWC: {item.get('iswc') or 'N/A'})",
+                                confidence=1.0
+                            ))
+                        else:
+                            results.append(SearchResult(**item))
                     except Exception as e:
                         print(f"Result mapping error: {e}")
 

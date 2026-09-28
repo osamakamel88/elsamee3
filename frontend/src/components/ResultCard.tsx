@@ -12,6 +12,7 @@ export interface ResultItem {
   type?: string;
   url?: string;
   thumbnail?: string;
+  image_url?: string;
   description?: string;
   isrc?: string;
   iswc?: string;
@@ -33,6 +34,15 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
   const isArabCMO = item.type === 'arab_cmo' || item.source.includes('Arab Repertoire');
 
   const getSourceBadgeStyle = (source: string, type?: string) => {
+    if (source.includes('Apple Music') || source.includes('DSP')) {
+      return 'bg-rose-50 text-rose-700 border-rose-200';
+    }
+    if (source.includes('The MLC')) {
+      return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    }
+    if (source.includes('SACEM')) {
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    }
     if (type === 'arab_cmo' || source.includes('Arab')) {
       return 'bg-emerald-50 text-emerald-800 border-emerald-300';
     }
@@ -49,9 +59,12 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
   };
 
   const getSourceIcon = (type?: string, source?: string) => {
+    if (source?.includes('Apple Music') || source?.includes('DSP')) return <Music size={15} className="text-rose-600" />;
+    if (source?.includes('The MLC')) return <Building2 size={15} className="text-indigo-600" />;
+    if (source?.includes('SACEM')) return <Building2 size={15} className="text-purple-600" />;
     if (type === 'arab_cmo' || source?.includes('Arab')) return <Building2 size={15} className="text-emerald-700" />;
     if (type === 'lyricist' || type === 'lyrics') return <Feather size={15} className="text-purple-600" />;
-    if (type === 'composer' || type === 'work') return <Music size={15} className="text-indigo-600" />;
+    if (type === 'composer' || type === 'work' || type === 'songwriter_profile') return <Music size={15} className="text-indigo-600" />;
     if (type === 'artist') return <User size={15} className="text-blue-600" />;
     if (type === 'release' || source?.includes('Discogs')) return <Disc size={15} className="text-amber-600" />;
     if (type === 'visual_artwork' || source?.includes('Openverse')) return <ImageIcon size={15} className="text-teal-600" />;
@@ -144,11 +157,14 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
           </div>
         </div>
 
-        {item.thumbnail && (
+        {(item.thumbnail || item.image_url) && (
           <img
-            src={item.thumbnail}
+            src={item.image_url || item.thumbnail}
             alt={item.title}
-            className="w-20 h-20 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+            className="w-20 h-20 rounded-xl object-cover border border-slate-200 shadow-xs flex-shrink-0"
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = 'none';
+            }}
           />
         )}
       </div>

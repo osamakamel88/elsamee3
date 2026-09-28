@@ -152,7 +152,15 @@ export default function Search() {
       return item.type === 'arab_cmo' || item.source.includes('Arab Repertoire');
     }
     if (activeCategory === 'music') {
-      return item.type === 'recording' || item.type === 'release' || item.source.includes('MusicBrainz Recordings') || item.source.includes('Discogs');
+      return (
+        item.type === 'recording' ||
+        item.type === 'release' ||
+        item.type === 'artist' ||
+        item.source.includes('Apple Music') ||
+        item.source.includes('Deezer') ||
+        item.source.includes('MusicBrainz Recordings') ||
+        item.source.includes('Discogs')
+      );
     }
     if (activeCategory === 'visual') {
       return item.type === 'visual_artwork' || item.type === 'image' || item.source.includes('Openverse');
@@ -297,6 +305,60 @@ export default function Search() {
                   ? `عرض ${filteredResults.length} من إجمالي ${results.length} قيد حقوق`
                   : `Showing ${filteredResults.length} of ${results.length} total records`}
               </span>
+            </div>
+
+            {/* Quick Result Category Switcher */}
+            <div className="flex flex-wrap items-center gap-2 pb-1">
+              {[
+                { id: 'all', label: isRTL ? 'الكل' : 'All', count: results.length },
+                {
+                  id: 'composer',
+                  label: isRTL ? '🎼 ملحنون ومصنفات' : '🎼 Composers & Works',
+                  count: results.filter(i =>
+                    i.type === 'composer' || i.type === 'work' || i.type === 'composition' ||
+                    i.type === 'songwriter_profile' || Boolean(i.iswc) ||
+                    i.source.includes('The MLC') || i.source.includes('SACEM')
+                  ).length
+                },
+                {
+                  id: 'lyricist',
+                  label: isRTL ? '✍️ شعراء وكلمات' : '✍️ Lyricists',
+                  count: results.filter(i =>
+                    i.type === 'lyricist' || i.type === 'lyrics' || i.type === 'songwriter_profile' ||
+                    i.source.includes('Lyrics') || (i.artist && i.artist.includes('شاعر'))
+                  ).length
+                },
+                {
+                  id: 'music',
+                  label: isRTL ? '🎵 أغاني وتسجيلات' : '🎵 Songs & DSP',
+                  count: results.filter(i =>
+                    i.type === 'recording' || i.type === 'release' || i.type === 'artist' ||
+                    i.source.includes('Apple Music') || i.source.includes('Deezer') || i.source.includes('Discogs')
+                  ).length
+                },
+                {
+                  id: 'arab_cmo',
+                  label: isRTL ? '🏛️ جمعيات عربية' : '🏛️ Arab CMOs',
+                  count: results.filter(i => i.type === 'arab_cmo' || i.source.includes('Arab')).length
+                },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCategory(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    activeCategory === tab.id
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                    activeCategory === tab.id ? 'bg-slate-700 text-slate-100' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
             </div>
 
             {/* Results List */}

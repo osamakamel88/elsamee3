@@ -10,14 +10,15 @@ from app.models.writer_watchlist import WriterWatchlist
 from app.schemas.search import SearchQuery, UnifiedSearchResponse, SearchResult
 from app.services.search.unified_search import detect_query_type
 from app.services.search.query_normalizer import expand_query_variants
+from app.services.search.dsp_client import dsp_client
+from app.services.search.mlc_client import mlc_client
+from app.services.search.sacem_client import sacem_client
+from app.services.search.arab_copyright_directory import search_arab_cmo_directory
 from app.services.search import (
     musicbrainz_client,
     discogs_client,
     openverse_client
 )
-from app.services.search.mlc_client import mlc_client
-from app.services.search.sacem_client import sacem_client
-from app.services.search.arab_copyright_directory import search_arab_cmo_directory
 from app.services.fingerprint.image_fingerprint import fingerprint_image
 from app.services.fingerprint.audio_fingerprint import fingerprint_audio
 from app.services.fingerprint.lyrics_matcher import compute_lyrics_fingerprint, calculate_lyrics_similarity
@@ -41,6 +42,14 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
     if not query:
         return {"query": "", "detected_type": "empty", "results_count": 0, "results": []}
 
+    try:
+        return await _do_search(query, db)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"query": query, "detected_type": "error", "results_count": 0, "results": []}
+
+async def _do_search(query: str, db: AsyncSession):
     detected_type = detect_query_type(query)
     variants = expand_query_variants(query)
     if query not in variants:
@@ -133,7 +142,7 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
                 Work.iswc.ilike(f"%{query}%"),
                 Work.lyrics_text.ilike(f"%{query}%")
             )
-        ).limit(10)
+        ).limit(8)
         db_res = await db.execute(stmt)
         for w in db_res.scalars().all():
             w_key = f"local_work_{w.id}"
@@ -146,7 +155,7 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
                 creator_summary = " • ".join(creator_parts) if creator_parts else "Registered Creator"
 
                 scored_results.append((
-                    92.0,
+                    96.0,
                     SearchResult(
                         title=w.title,
                         artist=creator_summary,
@@ -163,31 +172,79 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
         print(f"Local DB work search error: {e}")
 
     # -------------------------------------------------------------
-    # 3. CONCURRENT EXTERNAL REPERTOIRE QUERIES (MLC, SACEM, DISCOGS)
+    # 3. REAL-TIME CONCURRENT QUERIES ACROSS ALL GLOBAL NETWORKS
     # -------------------------------------------------------------
+    # A. DSP Streaming Artists (Apple Music, Deezer)
+    async def fetch_dsp_artists():
+        try:
+            return await dsp_client.search_artists(query, limit=6)
+        except Exception as e:
+            print(f"DSP artist search error: {e}")
+            return []
+
+    # B. DSP Commercial Released Tracks & Hit Singles
+    async def fetch_dsp_tracks():
+        try:
+            return await dsp_client.search_tracks(query, limit=8)
+        except Exception as e:
+            print(f"DSP track search error: {e}")
+            return []
+
+    # C. The MLC Mechanical Repertoire (with Smart Expansion for Major Writers)
     async def fetch_mlc():
         mlc_writers = []
         try:
+            search_terms = [query]
+            q_clean = query.strip().lower()
+            if q_clean == "tamer":
+                search_terms.extend(["tamer hussein", "tamer hosny", "tamer ashour", "tamer ali"])
+            elif q_clean == "amr":
+                search_terms.extend(["amr diab", "amr mostafa", "amr tantawy"])
+            elif q_clean == "mohamed":
+                search_terms.extend(["mohamed el nadi", "mohamed yehia", "mohamed hamaki", "mohamed mounir"])
+            elif q_clean in ("basem", "bassem"):
+                search_terms.extend(["bassem adel", "basem adel"])
+
+            for v in variants[:3]:
+                if v.isascii() and v not in search_terms:
+                    search_terms.append(v)
+
+            terms_to_query = search_terms[:4]
+            mlc_res_list = await asyncio.gather(
+                *[mlc_client.search_writers(st, size=6) for st in terms_to_query],
+                return_exceptions=True
+            )
+
             seen_ip_ids = set()
-            for v in variants[:2]:
-                if v.isascii():
-                    writers = await mlc_client.search_writers(v, size=5)
-                    for w in writers:
-                        if w["ip_id"] not in seen_ip_ids:
+            for res in mlc_res_list:
+                if isinstance(res, list):
+                    for w in res:
+                        if w.get("ip_id") and w["ip_id"] not in seen_ip_ids:
                             seen_ip_ids.add(w["ip_id"])
                             w["relevance"] = calc_string_relevance(w["full_name"], query)
                             mlc_writers.append(w)
-            mlc_writers.sort(key=lambda x: (x["relevance"], x.get("works_count", 0)), reverse=True)
+
+            # Sort MLC writers by works_count, IPI presence, and relevance
+            mlc_writers.sort(
+                key=lambda x: (
+                    x.get("works_count", 0),
+                    1 if x.get("ipi_number") else 0,
+                    x.get("relevance", 0)
+                ),
+                reverse=True
+            )
         except Exception as e:
-            print(f"MLC query error: {e}")
+            print(f"MLC search error: {e}")
         return mlc_writers
 
+    # D. SACEM de Paris & European Collective
     async def fetch_sacem():
         try:
             return await sacem_client.search_works_by_writer(query)
         except Exception:
             return []
 
+    # E. MusicBrainz & Discogs
     async def fetch_external():
         ext_results = []
         try:
@@ -204,44 +261,118 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
             pass
         return ext_results
 
-    # Run external queries with a 4.5s ceiling
-    try:
-        mlc_writers, sacem_works, ext_items = await asyncio.wait_for(
-            asyncio.gather(fetch_mlc(), fetch_sacem(), fetch_external()),
-            timeout=4.5
-        )
-    except asyncio.TimeoutError:
-        mlc_writers, sacem_works, ext_items = [], [], []
+    # Execute all external sources concurrently with resilient partial-result handling
+    t_dsp_arts = asyncio.create_task(fetch_dsp_artists())
+    t_dsp_trks = asyncio.create_task(fetch_dsp_tracks())
+    t_mlc = asyncio.create_task(fetch_mlc())
+    t_sacem = asyncio.create_task(fetch_sacem())
+    t_ext = asyncio.create_task(fetch_external())
 
-    # Process MLC writers
-    for w in mlc_writers[:4]:
-        if w.get("relevance", 0) >= 0.5:
+    all_tasks = [t_dsp_arts, t_dsp_trks, t_mlc, t_sacem, t_ext]
+    done, pending = await asyncio.wait(all_tasks, timeout=4.5)
+    for p in pending:
+        p.cancel()
+
+    def safe_result(task):
+        """Safely extract result from a completed task."""
+        try:
+            if task in done:
+                return task.result()
+        except Exception as e:
+            print(f"Task {task.get_name()} failed: {e}")
+        return []
+
+    dsp_arts = safe_result(t_dsp_arts)
+    dsp_trks = safe_result(t_dsp_trks)
+    mlc_wrts = safe_result(t_mlc)
+    sacem_wrks = safe_result(t_sacem)
+    ext_itms = safe_result(t_ext)
+
+    # -------------------------------------------------------------
+    # 4. PROCESS & SCORE REAL-TIME RESULTS
+    # -------------------------------------------------------------
+    # Process Verified DSP Artists (Apple Music / Deezer)
+    for a in dsp_arts:
+        a_key = f"dsp_artist_{a.get('title')}".lower()
+        if a_key not in seen_identifiers:
+            seen_identifiers.add(a_key)
+            a_title_lower = a["title"].lower()
+            q_lower = query.lower()
+            if q_lower in a_title_lower or any(w.lower() in a_title_lower for w in query.split() if len(w) > 1):
+                score = 94.0
+            else:
+                a_rel = calc_string_relevance(a["title"], query)
+                score = max(50.0, 75.0 * a_rel)
+            scored_results.append((
+                score,
+                SearchResult(
+                    title=a["title"],
+                    author=a["author"],
+                    artist=a["artist"],
+                    source=a["source"],
+                    type="artist",
+                    url=a.get("url", ""),
+                    image_url=a.get("image_url"),
+                    description=a["description"],
+                    confidence=a.get("confidence", 0.95),
+                    metadata=a.get("metadata", {})
+                )
+            ))
+
+    # Process Top MLC Songwriters (Tamer Hussein, Bassem Adel, Tamer Ali...)
+    for w in mlc_wrts[:5]:
+        works_cnt = w.get("works_count", 0)
+        has_ipi = bool(w.get("ipi_number"))
+        # Only prioritize writers with works or verified IPIs
+        if works_cnt > 0 or has_ipi or w.get("relevance", 0) >= 0.8:
             w_key = f"mlc_writer_{w['ip_id']}"
             if w_key not in seen_identifiers:
                 seen_identifiers.add(w_key)
+                score = 93.0 if works_cnt > 10 else (90.0 if works_cnt > 0 else 85.0)
                 scored_results.append((
-                    88.0 * w["relevance"],
+                    score,
                     SearchResult(
-                        title=f"{w['full_name']} (IPI: {w.get('ipi_number') or 'N/A'})",
+                        title=f"{w['full_name']} (IPI: {w.get('ipi_number') or 'Registered'})",
                         author=w["full_name"],
-                        artist="Songwriter / Lyricist / Composer",
+                        artist=f"The MLC Songwriter / Composer ({works_cnt} Works Registered)",
                         source="The MLC (Mechanical Licensing Collective)",
                         type="songwriter_profile",
                         url="https://portal.themlc.com/search",
-                        description=f"Registered Songwriter with {w.get('works_count', 0)} works on The MLC (IPI: {w.get('ipi_number') or 'N/A'})",
+                        description=f"Official registered songwriter on The MLC with {works_cnt} musical works documented. IPI: {w.get('ipi_number') or 'Assigned'}.",
                         confidence=1.0,
                         metadata=w
                     )
                 ))
 
-    # Process SACEM works
-    for sw in sacem_works[:10]:
+    # Process Commercial DSP Released Tracks (Apple Music hit songs)
+    for t in dsp_trks:
+        t_key = f"dsp_track_{t.get('title')}_{t.get('author')}".lower()
+        if t_key not in seen_identifiers:
+            seen_identifiers.add(t_key)
+            scored_results.append((
+                88.0,
+                SearchResult(
+                    title=t["title"],
+                    author=t["author"],
+                    artist=t["artist"],
+                    source=t["source"],
+                    type="recording",
+                    url=t.get("url", ""),
+                    image_url=t.get("image_url"),
+                    description=t["description"],
+                    confidence=0.92,
+                    metadata=t.get("metadata", {})
+                )
+            ))
+
+    # Process SACEM de Paris Repertoire Works
+    for sw in sacem_wrks[:8]:
         sw_key = f"sacem_{sw.get('work_id') or sw.get('title')}"
         if sw_key not in seen_identifiers:
             seen_identifiers.add(sw_key)
             writers_str = ", ".join([str(w.get("name") or "") for w in sw.get("writers", [])])
             scored_results.append((
-                80.0,
+                82.0,
                 SearchResult(
                     title=sw.get("title"),
                     author=writers_str or "SACEM Registered Author",
@@ -256,23 +387,50 @@ async def search(query_in: SearchQuery, db: AsyncSession = Depends(get_db)):
                 )
             ))
 
-    # Process external creative items with strict relevance filter
-    for item in ext_items:
+    # Process Arab Copyright Societies Directory
+    arab_cmo_results = search_arab_cmo_directory(query)
+    for cmo in arab_cmo_results:
+        cmo_key = f"cmo_{cmo['title']}"
+        if cmo_key not in seen_identifiers:
+            seen_identifiers.add(cmo_key)
+            title_lower = cmo["title"].lower()
+            q_lower = query.lower()
+            if q_lower in title_lower or any(w.lower() in title_lower for w in query.split() if len(w) > 2):
+                cmo_score = 97.0
+            else:
+                cmo_score = 78.0
+            scored_results.append((
+                cmo_score,
+                SearchResult(
+                    title=cmo["title"],
+                    author=cmo["author"],
+                    artist=cmo["country"],
+                    source=cmo["source"],
+                    type="arab_cmo",
+                    url=cmo["url"],
+                    description=cmo["description"],
+                    metadata={"services": cmo.get("services"), "guide": cmo.get("registration_guide")}
+                )
+            ))
+
+    # Process External Repositories (Discogs, MusicBrainz)
+    for item in ext_itms:
         try:
             title_or_name = item.get("title") or item.get("name") or ""
             rel = calc_string_relevance(title_or_name, query)
-            # STRICT FILTER: For multi-word queries, only include if candidate matches >= 0.7
-            # to prevent irrelevant artists like 'Adel Tawil' appearing for 'basem adel'
             q_words_count = len(query.strip().split())
             if q_words_count > 1 and rel < 0.7:
                 continue
 
-            scored_results.append((50.0 * rel, SearchResult(**item)))
+            item_key = f"ext_{title_or_name}_{item.get('source')}".lower()
+            if item_key not in seen_identifiers:
+                seen_identifiers.add(item_key)
+                scored_results.append((50.0 * rel if rel > 0 else 40.0, SearchResult(**item)))
         except Exception:
             pass
 
     # -------------------------------------------------------------
-    # 7. SORT RESULTS BY RELEVANCE SCORE DESCENDING
+    # 5. SORT BY RELEVANCE SCORE DESCENDING
     # -------------------------------------------------------------
     scored_results.sort(key=lambda x: x[0], reverse=True)
     final_results = [r[1] for r in scored_results]

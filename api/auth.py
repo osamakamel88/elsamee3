@@ -99,104 +99,123 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data, default=str, ensure_ascii=False).encode('utf-8'))
 
     def do_GET(self):
-        req_path = (self.path + " " + self.headers.get('x-matched-path', '') + " " + self.headers.get('x-forwarded-uri', '')).lower()
-        
-        # 1. GET /api/auth/me (Current User Profile)
-        if "me" in req_path:
-            auth_header = self.headers.get('Authorization', '')
-            if not auth_header.startswith("Bearer "):
-                self._send_json({"error": "Unauthorized", "detail": "Missing or invalid authorization token"}, 401)
+        try:
+            req_path = (self.path + " " + self.headers.get('x-matched-path', '') + " " + self.headers.get('x-forwarded-uri', '')).lower()
+            
+            # 1. GET /api/auth/me (Current User Profile)
+            if "me" in req_path:
+                auth_header = self.headers.get('Authorization', '')
+                if not auth_header.startswith("Bearer "):
+                    self._send_json({"error": "Unauthorized", "detail": "Missing or invalid authorization token"}, 401)
+                    return
+
+                token = auth_header[7:].strip()
+                payload = decode_access_token(token)
+                if not payload or "sub" not in payload:
+                    self._send_json({"error": "Unauthorized", "detail": "Invalid or expired token"}, 401)
+                    return
+
+                user_id_raw = payload["sub"]
+                user_email = payload.get("email", "").lower()
+
+                async def get_me():
+                    await _init_auth_db()
+                    parsed_uid = None
+                    try:
+                        parsed_uid = uuid.UUID(str(user_id_raw))
+                    except Exception:
+                        pass
+
+                    async with AsyncSessionLocal() as session:
+                        if parsed_uid and user_email:
+                            cond = (User.id == parsed_uid) | (User.email == user_email)
+                        elif parsed_uid:
+                            cond = (User.id == parsed_uid)
+                        elif user_email:
+                            cond = (User.email == user_email)
+                        else:
+                            return None
+
+                        res = await session.execute(select(User).where(cond))
+                        u = res.scalars().first()
+                        if u:
+                            return {
+                                "id": str(u.id),
+                                "email": u.email,
+                                "username": u.username,
+                                "fullName": u.full_name,
+                                "full_name": u.full_name,
+                                "country": u.country,
+                                "artistType": u.artist_type,
+                                "artist_type": u.artist_type,
+                                "language": u.language,
+                                "is_active": u.is_active,
+                                "created_at": str(u.created_at)
+                            }
+                        
+                        # Fallback check
+                        backups = _load_backup_users()
+                        if user_email in backups:
+                            b = backups[user_email]
+                            return {
+                                "id": b["id"],
+                                "email": b["email"],
+                                "username": b.get("username", user_email.split("@")[0]),
+                                "fullName": b.get("full_name", ""),
+                                "full_name": b.get("full_name", ""),
+                                "country": b.get("country", "EG"),
+                                "artistType": b.get("artist_type", "musician"),
+                                "artist_type": b.get("artist_type", "musician"),
+                                "language": b.get("language", "ar"),
+                                "is_active": True,
+                                "created_at": b.get("created_at")
+                            }
+                        return None
+
+                user_data = asyncio.run(get_me())
+                if user_data:
+                    self._send_json(user_data)
+                else:
+                    self._send_json({"error": "Not Found", "detail": "User not found in registry"}, 404)
                 return
 
-            token = auth_header[7:].strip()
-            payload = decode_access_token(token)
-            if not payload or "sub" not in payload:
-                self._send_json({"error": "Unauthorized", "detail": "Invalid or expired token"}, 401)
+            # 2. GET /api/auth/users (Summary of registered artists)
+            if "users" in req_path:
+                async def get_all_users():
+                    await _init_auth_db()
+                    users_list = []
+                    async with AsyncSessionLocal() as session:
+                        res = await session.execute(select(User))
+                        for u in res.scalars().all():
+                            users_list.append({
+                                "id": str(u.id),
+                                "email": u.email,
+                                "fullName": u.full_name,
+                                "artistType": u.artist_type,
+                                "country": u.country,
+                                "created_at": str(u.created_at)
+                            })
+                    return users_list
+
+                users_list = asyncio.run(get_all_users())
+                self._send_json({
+                    "status": "success",
+                    "registered_artists_count": len(users_list),
+                    "users": users_list
+                })
                 return
 
-            user_id = payload["sub"]
-            user_email = payload.get("email", "").lower()
-
-            async def get_me():
-                await _init_auth_db()
-                async with AsyncSessionLocal() as session:
-                    # Query by ID or email
-                    res = await session.execute(select(User).where((User.id == user_id) | (User.email == user_email)))
-                    u = res.scalars().first()
-                    if u:
-                        return {
-                            "id": str(u.id),
-                            "email": u.email,
-                            "username": u.username,
-                            "fullName": u.full_name,
-                            "full_name": u.full_name,
-                            "country": u.country,
-                            "artistType": u.artist_type,
-                            "artist_type": u.artist_type,
-                            "language": u.language,
-                            "is_active": u.is_active,
-                            "created_at": str(u.created_at)
-                        }
-                    
-                    # Fallback check
-                    backups = _load_backup_users()
-                    if user_email in backups:
-                        b = backups[user_email]
-                        return {
-                            "id": b["id"],
-                            "email": b["email"],
-                            "username": b.get("username", user_email.split("@")[0]),
-                            "fullName": b.get("full_name", ""),
-                            "full_name": b.get("full_name", ""),
-                            "country": b.get("country", "EG"),
-                            "artistType": b.get("artist_type", "musician"),
-                            "artist_type": b.get("artist_type", "musician"),
-                            "language": b.get("language", "ar"),
-                            "is_active": True,
-                            "created_at": b.get("created_at")
-                        }
-                    return None
-
-            user_data = asyncio.run(get_me())
-            if user_data:
-                self._send_json(user_data)
-            else:
-                self._send_json({"error": "Not Found", "detail": "User not found in registry"}, 404)
-            return
-
-        # 2. GET /api/auth/users (Summary of registered artists)
-        if "users" in req_path:
-            async def get_all_users():
-                await _init_auth_db()
-                users_list = []
-                async with AsyncSessionLocal() as session:
-                    res = await session.execute(select(User))
-                    for u in res.scalars().all():
-                        users_list.append({
-                            "id": str(u.id),
-                            "email": u.email,
-                            "fullName": u.full_name,
-                            "artistType": u.artist_type,
-                            "country": u.country,
-                            "created_at": str(u.created_at)
-                        })
-                return users_list
-
-            users_list = asyncio.run(get_all_users())
+            # Default info endpoint
             self._send_json({
-                "status": "success",
-                "registered_artists_count": len(users_list),
-                "users": users_list
+                "status": "online",
+                "service": "elsamee3 User Registration & Auth Vault",
+                "endpoints": ["POST /api/auth/register", "POST /api/auth/login", "GET /api/auth/me", "GET /api/auth/users"],
+                "version": "1.0.0"
             })
-            return
-
-        # Default info endpoint
-        self._send_json({
-            "status": "online",
-            "service": "elsamee3 User Registration & Auth Vault",
-            "endpoints": ["POST /api/auth/register", "POST /api/auth/login", "GET /api/auth/me", "GET /api/auth/users"],
-            "version": "1.0.0"
-        })
+        except Exception as e:
+            import traceback
+            err = traceback.format_exc()
+            self._send_json({"error": "Server Error", "detail": str(e), "traceback": err}, 500)
 
     def do_POST(self):
         try:

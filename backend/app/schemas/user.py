@@ -35,4 +35,13 @@ class UserResponse(UserBase):
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+    user: Optional[UserResponse] = None
+
+class AuthResponse(BaseModel):
+    status: str = "success"
+    message: Optional[str] = None
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+

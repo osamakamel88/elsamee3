@@ -7,16 +7,46 @@ interface SearchBarProps {
   onSearch: (query: string, filterCategory?: string) => void;
   onFileSearch?: (file: File, type: 'audio' | 'image') => void;
   onLyricsSearch?: (lyrics: string) => void;
+  onClear?: () => void;
+  initialQuery?: string;
+  initialFilter?: string;
   isLoading?: boolean;
 }
 
-export default function SearchBar({ onSearch, onFileSearch, onLyricsSearch, isLoading }: SearchBarProps) {
+export default function SearchBar({
+  onSearch,
+  onFileSearch,
+  onLyricsSearch,
+  onClear,
+  initialQuery = '',
+  initialFilter = 'all',
+  isLoading
+}: SearchBarProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const [query, setQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [query, setQuery] = useState(initialQuery);
+  const [activeFilter, setActiveFilter] = useState(initialFilter);
   const [showLyricsModal, setShowLyricsModal] = useState(false);
   const [lyricsInput, setLyricsInput] = useState('');
+
+  React.useEffect(() => {
+    if (initialQuery !== undefined) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
+  React.useEffect(() => {
+    if (initialFilter !== undefined) {
+      setActiveFilter(initialFilter);
+    }
+  }, [initialFilter]);
+
+  const handleClear = () => {
+    setQuery('');
+    if (onClear) {
+      onClear();
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +123,7 @@ export default function SearchBar({ onSearch, onFileSearch, onLyricsSearch, isLo
         {query && (
           <button
             type="button"
-            onClick={() => setQuery('')}
+            onClick={handleClear}
             className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors me-1 shrink-0"
           >
             <X size={16} />

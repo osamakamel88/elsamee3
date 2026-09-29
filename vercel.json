@@ -21,6 +21,14 @@
       "destination": "/api/search.py"
     },
     {
+      "source": "/api/auth",
+      "destination": "/api/auth.py"
+    },
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth.py"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

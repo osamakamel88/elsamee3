@@ -3,38 +3,57 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import SearchBar from '../components/SearchBar';
 import ResultCard, { ResultItem } from '../components/ResultCard';
+import { useSearchCache } from '../contexts/SearchCacheContext';
 import { toast } from 'react-hot-toast';
-import { Shield, Database, Loader2, Info, ArrowUpRight, Feather, Building2, Copy, CheckCircle2, Lock } from 'lucide-react';
+import { Shield, Database, Loader2, Info, ArrowUpRight, Feather, Building2, Copy, CheckCircle2, Lock, History, Trash2, X } from 'lucide-react';
 
 export default function Search() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [results, setResults] = useState<ResultItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const {
+    cachedState,
+    searchHistory,
+    setCachedState,
+    saveSearchResult,
+    restoreFromHistory,
+    clearSearch,
+    clearHistory
+  } = useSearchCache();
+
   const [loading, setLoading] = useState<boolean>(false);
-  const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const [lyricsFingerprint, setLyricsFingerprint] = useState<any>(null);
-  const [searchMeta, setSearchMeta] = useState<{ query: string; detectedType: string; count: number } | null>(null);
+
+  // Derive active view from persistent cached state
+  const results = cachedState.results || [];
+  const activeCategory = cachedState.activeCategory || 'all';
+  const hasSearched = cachedState.hasSearched;
+  const lyricsFingerprint = cachedState.lyricsFingerprint;
+  const searchMeta = cachedState.searchMeta;
+
+  const setActiveCategory = (category: string) => {
+    setCachedState((prev) => ({
+      ...prev,
+      activeCategory: category,
+    }));
+  };
 
   const handleSearch = async (queryText: string, category: string = 'all') => {
-    setActiveCategory(category);
     setLoading(true);
-    setHasSearched(true);
-    setLyricsFingerprint(null);
 
     try {
       const response = await api.post('/search', { query: queryText });
       const data = response.data;
-      setResults(data.results || []);
-      setSearchMeta({
+      const resList = data.results || [];
+      const meta = {
         query: queryText,
-        detectedType: data.detected_type,
-        count: data.results_count || (data.results ? data.results.length : 0),
-      });
+        detectedType: data.detected_type || 'search',
+        count: data.results_count || resList.length,
+      };
 
-      if (data.results && data.results.length > 0) {
-        toast.success(isRTL ? `تم العثور على ${data.results.length} مصنف وقيد حقوق!` : `Found ${data.results.length} copyright records!`);
+      saveSearchResult(queryText, resList, category, meta, null, 'text');
+
+      if (resList.length > 0) {
+        toast.success(isRTL ? `تم العثور على ${resList.length} مصنف وقيد حقوق!` : `Found ${resList.length} copyright records!`);
       } else {
         toast(isRTL ? 'لم يتم العثور على نتائج، جرب مصطلحاً آخر أو كود ISWC.' : 'No direct records found. Try another query.', { icon: '🔍' });
       }
@@ -48,21 +67,20 @@ export default function Search() {
 
   const handleLyricsSearch = async (lyrics: string) => {
     setLoading(true);
-    setHasSearched(true);
-    setActiveCategory('all');
     toast(isRTL ? 'جاري فحص ومطابقة نصوص الكلمات وتوليد البصمة المشفرة...' : 'Computing lyrics hash and scanning archives...', { icon: '✍️' });
 
     try {
       const response = await api.post('/search/lyrics', { lyrics });
       const data = response.data;
       const matches = data.matches || [];
-      setResults(matches);
-      setLyricsFingerprint(data.fingerprint);
-      setSearchMeta({
-        query: lyrics.trim().split('\n')[0].slice(0, 45) + '...',
+      const queryPreview = lyrics.trim().split('\n')[0].slice(0, 45) + '...';
+      const meta = {
+        query: queryPreview,
         detectedType: 'lyrics_fingerprint',
         count: matches.length,
-      });
+      };
+
+      saveSearchResult(queryPreview, matches, 'all', meta, data.fingerprint, 'lyrics');
 
       if (matches.length > 0) {
         toast.success(isRTL ? `تم فحص البصمة ومطابقة ${matches.length} عمل محتمل!` : `Computed lyrics fingerprint and matched ${matches.length} works!`);
@@ -79,8 +97,6 @@ export default function Search() {
 
   const handleFileSearch = async (file: File, type: 'audio' | 'image') => {
     setLoading(true);
-    setHasSearched(true);
-    setLyricsFingerprint(null);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -93,12 +109,13 @@ export default function Search() {
       });
       const data = response.data;
       const matches = data.matches || [];
-      setResults(matches);
-      setSearchMeta({
+      const meta = {
         query: file.name,
         detectedType: `${type}_fingerprint`,
         count: matches.length,
-      });
+      };
+
+      saveSearchResult(file.name, matches, 'all', meta, null, type);
 
       toast.success(isRTL ? `تم استخراج البصمة والبحث بنجاح!` : `Fingerprint computed and searched successfully!`);
     } catch (err: any) {
@@ -187,13 +204,83 @@ export default function Search() {
       </div>
 
       {/* Main Search Bar */}
-      <div className="py-2">
+      <div className="py-2 space-y-3">
         <SearchBar
           onSearch={handleSearch}
           onFileSearch={handleFileSearch}
           onLyricsSearch={handleLyricsSearch}
+          onClear={clearSearch}
+          initialQuery={cachedState.query}
+          initialFilter={cachedState.activeCategory}
           isLoading={loading}
         />
+
+        {/* Cache Persistence Indicator Bar */}
+        {hasSearched && (
+          <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-emerald-50/70 border border-blue-200/80 px-4 py-2 rounded-2xl text-xs shadow-2xs animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold text-slate-800">
+                {isRTL ? 'النتائج محفوظة تلقائياً في الذاكرة السريعة' : 'Results automatically cached in session'}
+              </span>
+              <span className="text-slate-500 hidden sm:inline">
+                {isRTL ? '(لن تضيع عند التنقل بين التبويبات أو إغلاق الصفحة)' : '(Preserved across tabs & page reloads)'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-brand-blue bg-white/90 px-2.5 py-0.5 rounded-xl border border-blue-200/60 shadow-2xs">
+                {filteredResults.length} {isRTL ? 'مصنف' : 'records'}
+              </span>
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="text-rose-600 hover:text-rose-800 font-bold hover:underline flex items-center gap-1 transition-colors"
+                title={isRTL ? 'مسح البحث الحالي والبدء من جديد' : 'Clear search and start fresh'}
+              >
+                <Trash2 size={13} />
+                <span>{isRTL ? 'مسح البحث' : 'Clear'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Recent Searches History Bar */}
+        {searchHistory.length > 0 && (
+          <div className="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto py-1 scrollbar-none text-xs">
+            <span className="text-slate-500 font-bold shrink-0 flex items-center gap-1 px-1">
+              <History size={14} className="text-brand-blue" />
+              <span>{isRTL ? 'سجل البحث الأخير:' : 'Recent:'}</span>
+            </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+              {searchHistory.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => restoreFromHistory(item)}
+                  className={`px-3 py-1 rounded-xl border shrink-0 text-xs font-medium transition-all flex items-center gap-1.5 shadow-2xs ${
+                    cachedState.query === item.query
+                      ? 'bg-brand-blue text-white border-brand-blue'
+                      : 'bg-white hover:bg-blue-50/80 text-slate-700 border-slate-200 hover:border-blue-200'
+                  }`}
+                >
+                  <span>{item.query.length > 22 ? item.query.slice(0, 22) + '...' : item.query}</span>
+                  <span className="opacity-70 text-[11px] font-mono">({item.count})</span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={clearHistory}
+              className="text-slate-400 hover:text-rose-600 text-[11px] shrink-0 ms-auto underline px-1"
+            >
+              {isRTL ? 'مسح السجل' : 'Clear history'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Quick Arab Societies & Composer Links Bar */}

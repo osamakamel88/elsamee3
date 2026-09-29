@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
+import Logo from '../components/Logo';
 import api from '../api/client';
 import { Loader2 } from 'lucide-react';
 
@@ -65,11 +66,10 @@ export default function Login() {
       </div>
 
       <div className="w-full max-w-sm space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold tracking-display">
-            {isRTL ? 'السميع' : 'elsamee3'}
-          </h1>
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <Logo size="lg" asLink={false} showArabic />
+          </div>
           <p className="text-sm text-ash">
             {isRTL ? 'تسجيل الدخول إلى حسابك' : 'Sign in to your account'}
           </p>

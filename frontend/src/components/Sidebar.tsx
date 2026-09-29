@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import Logo from './Logo';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -49,8 +50,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       `}
     >
       {/* Header */}
-      <div className="px-5 h-16 flex items-center justify-between border-b border-smoke">
-        <span className="text-base font-bold tracking-display">elsamee3</span>
+      <div className="px-4 h-16 flex items-center justify-between border-b border-smoke">
+        <Logo size="sm" />
         {onClose && (
           <button
             onClick={onClose}

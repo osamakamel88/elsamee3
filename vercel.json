@@ -5,6 +5,10 @@
   "installCommand": "cd frontend && npm install",
   "rewrites": [
     {
+      "source": "/api/valuation/(.*)",
+      "destination": "/api/valuation.py"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

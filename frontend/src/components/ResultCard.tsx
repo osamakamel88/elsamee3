@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ExternalLink, ShieldCheck, FileText, Music, User, Disc, Image as ImageIcon, Feather, Building2, CheckCircle2 } from 'lucide-react';
+import { ExternalLink, ShieldCheck, FileText, Music, User, Disc, Image as ImageIcon, Feather, Building2, CheckCircle2, Calculator } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import RoyaltyEstimatorModal from './RoyaltyEstimatorModal';
+
 
 export interface ResultItem {
   id?: string;
@@ -30,8 +32,10 @@ interface ResultCardProps {
 export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const [isEstimatorOpen, setIsEstimatorOpen] = useState<boolean>(false);
 
   const isArabCMO = item.type === 'arab_cmo' || item.source.includes('Arab Repertoire');
+
 
   const getSourceBadgeStyle = (source: string, type?: string) => {
     if (source.includes('Apple Music') || source.includes('DSP')) {
@@ -187,6 +191,14 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setIsEstimatorOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-white transition-colors shadow-xs"
+          >
+            <Calculator size={14} />
+            <span>{isRTL ? 'تقدير العائدات والتعويض 💰' : 'Estimate Royalties 💰'}</span>
+          </button>
+
+          <button
             onClick={() => {
               if (onMonitor) {
                 onMonitor(item);
@@ -215,6 +227,14 @@ export default function ResultCard({ item, onMonitor, onTakedown }: ResultCardPr
           </button>
         </div>
       </div>
+
+      <RoyaltyEstimatorModal
+        isOpen={isEstimatorOpen}
+        onClose={() => setIsEstimatorOpen(false)}
+        initialTitle={item.title}
+        initialArtist={item.author || item.artist || ''}
+        initialRole={item.type === 'lyricist' || item.type === 'lyrics' ? 'lyricist' : item.type === 'composer' ? 'composer' : 'lyricist'}
+      />
     </div>
   );
 }

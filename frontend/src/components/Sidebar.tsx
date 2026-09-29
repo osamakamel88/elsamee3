@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Music,
   Search,
+  Calculator,
   Radar,
   Bell,
   FileText,
@@ -29,11 +30,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     { to: '/', icon: <LayoutDashboard size={20} />, label: t('nav.dashboard') },
     { to: '/works', icon: <Music size={20} />, label: t('nav.myWorks') },
     { to: '/search', icon: <Search size={20} />, label: t('nav.search') },
+    { to: '/estimator', icon: <Calculator size={20} />, label: t('nav.estimator') },
     { to: '/monitoring', icon: <Radar size={20} />, label: t('nav.monitoring') },
     { to: '/alerts', icon: <Bell size={20} />, label: t('nav.alerts') },
     { to: '/takedowns', icon: <FileText size={20} />, label: t('nav.takedowns') },
     { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
   ];
+
 
   return (
     <aside

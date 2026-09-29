@@ -12,6 +12,7 @@ import Monitoring from './pages/Monitoring';
 import Alerts from './pages/Alerts';
 import Takedowns from './pages/Takedowns';
 import Settings from './pages/Settings';
+import Estimator from './pages/Estimator';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -31,6 +32,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="works" element={<MyWorks />} />
           <Route path="search" element={<Search />} />
+          <Route path="estimator" element={<Estimator />} />
           <Route path="monitoring" element={<Monitoring />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="takedowns" element={<Takedowns />} />

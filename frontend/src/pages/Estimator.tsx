@@ -17,7 +17,12 @@ import {
   FileCheck,
   CheckCircle2,
   Share2,
-  Award
+  Award,
+  Search,
+  Loader2,
+  ExternalLink,
+  Flame,
+  Check
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -25,12 +30,19 @@ export default function Estimator() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [title, setTitle] = useState(isRTL ? 'أغنية يا مصري (مثال حي)' : 'Hit Track (Live Benchmark)');
-  const [artist, setArtist] = useState(isRTL ? 'باسم عادل (شاعر ومؤلف)' : 'Bassem Adel (Lyricist)');
-  const [role, setRole] = useState('lyricist');
-  const [currency, setCurrency] = useState('EGP');
-  const [territory, setTerritory] = useState('mena');
-  const [infringementType, setInfringementType] = useState('unauthorized_commercial');
+  // Live Auto-Audit State
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isAuditing, setIsAuditing] = useState<boolean>(false);
+  const [auditedVideos, setAuditedVideos] = useState<any[]>([]);
+  const [totalAuditedViews, setTotalAuditedViews] = useState<number>(0);
+
+  // Manual & Audited Inputs
+  const [title, setTitle] = useState<string>('');
+  const [artist, setArtist] = useState<string>('');
+  const [role, setRole] = useState<string>('lyricist');
+  const [currency, setCurrency] = useState<string>('EGP');
+  const [territory, setTerritory] = useState<string>('mena');
+  const [infringementType, setInfringementType] = useState<string>('unauthorized_commercial');
 
   const [youtubeViews, setYoutubeViews] = useState<number>(5000000);
   const [dspStreams, setDspStreams] = useState<number>(1500000);
@@ -40,11 +52,14 @@ export default function Estimator() {
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<any>(null);
 
+  // Industry Standard Presets (100% generic)
   const presets = [
     {
       id: 'mega_hit',
-      titleAr: 'أغنية جماهيرية واسعة (Mega Hit)',
-      descAr: '25 مليون مشاهدة، 8 مليون استماع، 150 ألف فيديو تيك توك',
+      titleAr: 'أغنية جماهيرية كبرى (Mega Hit)',
+      titleEn: 'Mega Commercial Hit',
+      descAr: '25 مليون مشاهدة يوتيوب، 8 مليون استماع منصات، 150 ألف فيديو تيك توك',
+      descEn: '25M YT views, 8M DSP streams, 150K TikTok creations',
       yt: 25000000,
       dsp: 8000000,
       ugc: 150000,
@@ -52,8 +67,10 @@ export default function Estimator() {
     },
     {
       id: 'tiktok_viral',
-      titleAr: 'تريند تيك توك فيروسي (Viral Sound)',
-      descAr: '3 مليون مشاهدة، 1.2 مليون استماع، 350 ألف فيديو تيك توك',
+      titleAr: 'تريند فيروسي (Viral Social Sound)',
+      titleEn: 'Viral Social Sound',
+      descAr: '3 مليون مشاهدة يوتيوب، 1.2 مليون استماع، 350 ألف فيديو تيك توك وريلز',
+      descEn: '3M YT views, 1.2M streams, 350K UGC creations',
       yt: 3000000,
       dsp: 1200000,
       ugc: 350000,
@@ -61,8 +78,10 @@ export default function Estimator() {
     },
     {
       id: 'commercial_sync',
-      titleAr: 'حملة إعلانية / مسلسل تلفزيوني (Commercial Sync)',
-      descAr: '10 مليون مشاهدة، 2 مليون استماع، إعلانان لعلامات تجارية',
+      titleAr: 'حملة إعلانية تجارية (Commercial Ad Sync)',
+      titleEn: 'Commercial Ad Campaign',
+      descAr: '10 مليون مشاهدة، 2 مليون استماع، ترخيصان إعلانيان تلفزيونيان',
+      descEn: '10M views, 2M streams, 2 commercial TV/brand syncs',
       yt: 10000000,
       dsp: 2000000,
       ugc: 20000,
@@ -70,10 +89,12 @@ export default function Estimator() {
     },
     {
       id: 'regional_standard',
-      titleAr: 'أغنية متوسطة الانتشار (Regional Standard)',
-      descAr: '1.5 مليون مشاهدة، 400 ألف استماع، 8 آلاف فيديو',
+      titleAr: 'إصدار رقمي قياسي (Standard Digital Release)',
+      titleEn: 'Standard Digital Release',
+      descAr: '1.5 مليون مشاهدة، 450 ألف استماع، 8 آلاف فيديو',
+      descEn: '1.5M views, 450K streams, 8K UGC videos',
       yt: 1500000,
-      dsp: 400000,
+      dsp: 450000,
       ugc: 8000,
       sync: 0
     }
@@ -84,9 +105,60 @@ export default function Estimator() {
     setDspStreams(preset.dsp);
     setUgcCreations(preset.ugc);
     setSyncCommercialUses(preset.sync);
-    toast.success(isRTL ? `تم تطبيق نموذج: ${preset.titleAr}` : `Applied preset`);
+    toast.success(isRTL ? `تم تطبيق نموذج: ${preset.titleAr}` : `Applied: ${preset.titleEn}`);
   };
 
+  // Perform Live Auto-Audit by Song / Artist / URL
+  const handleAuditSearch = async () => {
+    if (!searchQuery.trim()) {
+      toast(isRTL ? 'يرجى كتابة اسم الأغنية أو الفنان أولاً' : 'Please enter a song or artist name', { icon: '🔍' });
+      return;
+    }
+
+    setIsAuditing(true);
+    toast(isRTL ? 'جاري فحص استهلاك ومشاهدات العمل على YouTube والمنصات...' : 'Auditing real live views and DSP footprint...', { icon: '📡' });
+
+    try {
+      const payload = {
+        query: searchQuery.trim(),
+        role: role,
+        currency: currency,
+        territory: territory,
+        infringement_type: infringementType
+      };
+
+      const res = await api.post('/valuation', payload);
+      const data = res.data;
+
+      if (data.total_real_views) {
+        setTotalAuditedViews(data.total_real_views);
+        setAuditedVideos(data.top_videos || []);
+        setTitle(data.detected_title || searchQuery);
+        setArtist(data.detected_artist || (isRTL ? 'فنان غير محدد' : 'Artist'));
+        setYoutubeViews(data.total_real_views);
+        setDspStreams(data.estimated_dsp_streams || Math.round(data.total_real_views * 0.3));
+        setUgcCreations(data.estimated_ugc_creations || 10000);
+        if (data.valuation) {
+          setResult(data.valuation);
+        }
+        toast.success(
+          isRTL
+            ? `تم التدقيق الحي! رصد ${data.total_real_views_formatted} مشاهدة فعلية على يوتيوب`
+            : `Audit complete! Detected ${data.total_real_views_formatted} real live views.`
+        );
+      } else {
+        calculateEstimate();
+      }
+    } catch (err: any) {
+      console.warn('Live audit error, falling back to calculation', err);
+      toast.error(isRTL ? 'تعذر جلب البيانات الحية، يمكنك استخدام المؤشرات اليدوية' : 'Audit request timed out, using manual sliders');
+      calculateEstimate();
+    } finally {
+      setIsAuditing(false);
+    }
+  };
+
+  // Recalculate whenever inputs change
   useEffect(() => {
     const timer = setTimeout(() => {
       calculateEstimate();
@@ -109,8 +181,8 @@ export default function Estimator() {
     setLoading(true);
     try {
       const payload = {
-        work_title: title,
-        artist: artist,
+        work_title: title || (isRTL ? 'مصنف مسجل' : 'Registered Artwork'),
+        artist: artist || (isRTL ? 'صاحب الحق' : 'Rightsholder'),
         role: role,
         currency: currency,
         territory: territory,
@@ -124,7 +196,6 @@ export default function Estimator() {
       const res = await api.post('/valuation', payload);
       setResult(res.data);
     } catch (err: any) {
-      console.warn('API error, using local computation fallback', err);
       const fx = currency === 'EGP' ? 48.5 : currency === 'SAR' ? 3.75 : 1.0;
       const ytGross = (youtubeViews / 1000) * (territory === 'mena' ? 2.2 * 0.45 : 6.5 * 0.60);
       const dspGross = dspStreams * (territory === 'mena' ? 0.0032 : 0.0048);
@@ -159,19 +230,21 @@ export default function Estimator() {
   const copyClaimNotice = () => {
     if (!result) return;
     const currSymbol = currency === 'EGP' ? 'ج.م' : currency === 'SAR' ? 'ر.س' : '$';
+    const displayTitle = title || (isRTL ? 'مصنف موسيقي / غنائي' : 'Musical Work');
+    const displayArtist = artist || (isRTL ? 'صاحب الحق المعتمد' : 'Verified Creator');
     
     const text = isRTL
       ? `📋 إشعار مطالبة مالية وتعويض قانوني عن استغلال مصنف:\n` +
-        `• المصنف: "${title}"\n` +
-        `• صاحب الحق: ${artist} (${role === 'lyricist' ? 'شاعر ومؤلف الكلمات' : role === 'composer' ? 'الملحن' : role})\n` +
+        `• المصنف: "${displayTitle}"\n` +
+        `• صاحب الحق/الصفة: ${displayArtist} (${role === 'lyricist' ? 'الشاعر ومؤلف الكلمات' : role === 'composer' ? 'الملحن ومبدع اللحن' : role})\n` +
         `• حجم الاستغلال المرصود: ${youtubeViews.toLocaleString()} مشاهدة يوتيوب | ${dspStreams.toLocaleString()} استماع منصات | ${ugcCreations.toLocaleString()} مقطع تيك توك/ريلز\n` +
-        `• العائدات المستحقة الصافية: ${result.claimant_total_earnings_converted.toLocaleString()} ${currSymbol}\n` +
+        `• العائدات المستحقة الصافية لصاحب الحق: ${result.claimant_total_earnings_converted.toLocaleString()} ${currSymbol}\n` +
         `• مبلغ التسوية الودية المقترح (مع التعويض القانوني): ${result.recommended_settlement_claim_converted.toLocaleString()} ${currSymbol}\n` +
         `• الأساس القانوني: المواد (138، 139، 181) من قانون حماية الملكية الفكرية رقم 82 لسنة 2002 واتفاقية برن الدولية.\n` +
         `— صادر وموثق عبر منصة السميع (elsamee3.vercel.app)`
       : `📋 Formal Royalty & Legal Damages Settlement Notice:\n` +
-        `• Work: "${title}"\n` +
-        `• Claimant: ${artist} (${role})\n` +
+        `• Work: "${displayTitle}"\n` +
+        `• Claimant: ${displayArtist} (${role})\n` +
         `• Tracked Usage: ${youtubeViews.toLocaleString()} YT Views | ${dspStreams.toLocaleString()} DSP Streams | ${ugcCreations.toLocaleString()} UGC Creations\n` +
         `• Net Accrued Royalties: ${result.claimant_total_earnings_converted.toLocaleString()} ${currency}\n` +
         `• Recommended Settlement Claim: ${result.recommended_settlement_claim_converted.toLocaleString()} ${currency}\n` +
@@ -193,23 +266,101 @@ export default function Estimator() {
         <div className="max-w-2xl relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-3">
             <Sparkles size={14} />
-            <span>{isRTL ? 'محرك التقدير المالي والقضائي المباشر' : 'Live Royalty & Damages Engine'}</span>
+            <span>{isRTL ? 'محرك التدقيق المالي والقضائي للمصنفات' : 'Live Royalty & Damages Audit Engine'}</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            {isRTL ? 'حاسبة العائدات والتعويضات التقديرية' : 'Royalty & Damages Calculator'}
+            {isRTL ? 'حاسبة وتدقيق العائدات والتعويضات' : 'Royalty & Damages Valuation & Audit'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
             {isRTL
-              ? 'احسب بدقة أرباح أي مصنف موسيقي أو غنائي عبر منصات البث (Spotify, Apple, Anghami) ومشاهدات YouTube وتيك توك، وقدر قيمة التعويض القانوني العادل للشاعر والملحن طبقاً لقانون الملكية الفكرية.'
-              : 'Calculate multi-channel royalties across YouTube, DSPs, TikTok UGC, and estimate statutory legal settlement claims under copyright law.'}
+              ? 'أداة احترافية لحساب وتدقيق أرباح أي أغنية أو مصنف عبر مشاهدات يوتيوب الفعلية ومنصات البث الرقمي (Spotify, Apple, Anghami) وتيك توك، وتقدير مبالغ التعويض القضائي العادل للشاعر والملحن والمؤدي طبقاً لقوانين الملكية الفكرية.'
+              : 'Professional tool to audit and calculate multi-channel royalties across YouTube, DSPs, TikTok UGC, and estimate statutory legal claims under copyright law.'}
           </p>
         </div>
       </div>
 
-      {/* Preset Benchmarks */}
+      {/* FEATURE 1: Live Profit Auto-Audit by Song / Artist / URL */}
+      <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-blue-950 p-6 rounded-3xl text-white shadow-xl border border-indigo-800/40 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300">
+              <Search size={18} />
+            </div>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                <span>{isRTL ? 'الفحص والتدقيق الآلي لأرباح أي أغنية (Live Profit Auto-Audit)' : 'Live Song Profit Auto-Audit'}</span>
+                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                  {isRTL ? 'رصد حي ومباشر' : 'Live Scraping'}
+                </span>
+              </h2>
+              <p className="text-xs text-slate-300 mt-0.5">
+                {isRTL
+                  ? 'ابحث باسم الأغنية أو الفنان أو الصق رابط فيديو يوتيوب لجلب المشاهدات الفعلية وحساب الأرباح المحققة فوراً:'
+                  : 'Search any track or artist name to scrape real YouTube views, DSP metadata, and calculate actual profits:'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2.5">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAuditSearch()}
+            placeholder={isRTL ? 'اكتب اسم الأغنية أو الفنان (مثال: تملي معاك، نور العين، بحبك...) أو الصق رابطاً...' : 'Enter track or artist name (e.g. Tamally Maak, Shape of You) or paste URL...'}
+            className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 backdrop-blur-sm"
+          />
+          <button
+            onClick={handleAuditSearch}
+            disabled={isAuditing}
+            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-bold rounded-2xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 flex-shrink-0"
+          >
+            {isAuditing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+            <span>{isAuditing ? (isRTL ? 'جاري الفحص المباشر...' : 'Auditing Live...') : (isRTL ? 'فحص وتدقيق الأرباح الحقيقية' : 'Audit Real Profits')}</span>
+          </button>
+        </div>
+
+        {/* Real Live Videos Found */}
+        {auditedVideos.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-white/10 space-y-2.5 animate-fadeIn">
+            <div className="flex items-center justify-between text-xs text-slate-300">
+              <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                <CheckCircle2 size={14} />
+                {isRTL
+                  ? `تم رصد ${totalAuditedViews.toLocaleString()} مشاهدة فعلية عبر مقاطع يوتيوب التالية:`
+                  : `Detected ${totalAuditedViews.toLocaleString()} real views across live uploads:`}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {auditedVideos.map((v, idx) => (
+                <a
+                  key={idx}
+                  href={v.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors group"
+                >
+                  <div className="truncate flex-1 me-2">
+                    <span className="block font-semibold text-slate-200 truncate group-hover:text-emerald-300 transition-colors">
+                      {v.title}
+                    </span>
+                    <span className="text-[10px] text-slate-400">{v.channel}</span>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-300 flex-shrink-0">
+                    {v.views_formatted}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Preset Benchmarks (Generic Reference) */}
       <div>
         <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-          {isRTL ? 'نماذج جاهزة سريعة للمقارنة والقياس:' : 'Quick Benchmark Presets:'}
+          {isRTL ? 'نماذج قياسية للمقارنة السريعة:' : 'Quick Industry Benchmark Presets:'}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {presets.map((p) => (
@@ -219,10 +370,10 @@ export default function Estimator() {
               className="p-3.5 bg-white border border-slate-200 rounded-2xl text-start hover:border-brand-blue hover:shadow-md transition-all group"
             >
               <h3 className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-brand-blue">
-                {p.titleAr}
+                {isRTL ? p.titleAr : p.titleEn}
               </h3>
               <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                {p.descAr}
+                {isRTL ? p.descAr : p.descEn}
               </p>
             </button>
           ))}
@@ -249,6 +400,7 @@ export default function Estimator() {
                 <input
                   type="text"
                   value={title}
+                  placeholder={isRTL ? 'مثال: اسم الأغنية' : 'e.g. Song Title'}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
                 />
@@ -256,11 +408,12 @@ export default function Estimator() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  {isRTL ? 'صاحب الحق / الشاعر / الملحن' : 'Creator / Partner'}
+                  {isRTL ? 'اسم المبدع / الشاعر / الملحن' : 'Creator / Artist'}
                 </label>
                 <input
                   type="text"
                   value={artist}
+                  placeholder={isRTL ? 'مثال: اسم الشاعر أو الملحن أو الفنان' : 'e.g. Creator / Artist name'}
                   onChange={(e) => setArtist(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
                 />
@@ -343,7 +496,7 @@ export default function Estimator() {
             </h2>
 
             {/* YouTube */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <Youtube size={16} className="text-red-600" />
@@ -356,7 +509,7 @@ export default function Estimator() {
               <input
                 type="range"
                 min={0}
-                max={50000000}
+                max={100000000}
                 step={250000}
                 value={youtubeViews}
                 onChange={(e) => setYoutubeViews(parseInt(e.target.value))}
@@ -365,7 +518,7 @@ export default function Estimator() {
             </div>
 
             {/* DSP Streaming */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <Music size={16} className="text-emerald-600" />
@@ -378,7 +531,7 @@ export default function Estimator() {
               <input
                 type="range"
                 min={0}
-                max={20000000}
+                max={30000000}
                 step={100000}
                 value={dspStreams}
                 onChange={(e) => setDspStreams(parseInt(e.target.value))}
@@ -387,7 +540,7 @@ export default function Estimator() {
             </div>
 
             {/* TikTok & UGC */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <Video size={16} className="text-purple-600" />
@@ -400,7 +553,7 @@ export default function Estimator() {
               <input
                 type="range"
                 min={0}
-                max={500000}
+                max={1000000}
                 step={5000}
                 value={ugcCreations}
                 onChange={(e) => setUgcCreations(parseInt(e.target.value))}
@@ -412,7 +565,7 @@ export default function Estimator() {
             </div>
 
             {/* Sync Commercials */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <Tv size={16} className="text-amber-600" />

@@ -79,8 +79,8 @@ export default function WriterSentinel() {
       setScanning(true);
       toast(
         isRTL 
-          ? 'جاري استيراد سجل الشريك (باسم عادل) وفحص قاعدة بيانات The MLC وSACEM...' 
-          : 'Importing partner profile (Bassem Adel) and querying The MLC & SACEM...', 
+          ? 'جاري استيراد نموذج سجل مؤلف وفحص قاعدة بيانات The MLC وSACEM...' 
+          : 'Importing demo writer repertoire and querying The MLC & SACEM...', 
         { icon: '📡' }
       );
       const res = await client.post('/monitoring/quick-seed');
@@ -478,7 +478,7 @@ export default function WriterSentinel() {
                                   </div>
                                 ))
                               ) : (
-                                <span className="text-slate-500">Mazzika Group (100%)</span>
+                                <span className="text-slate-500">{isRTL ? 'الناشر المسجل (100%)' : 'Registered Publisher (100%)'}</span>
                               )}
                             </div>
                           </td>
@@ -527,7 +527,7 @@ export default function WriterSentinel() {
                   required
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="e.g. Bassem Adel or باسم عادل"
+                  placeholder={isRTL ? 'مثال: اسم الشاعر أو الملحن' : 'e.g. Stage / Creator Name'}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-blue"
                 />
               </div>
@@ -540,7 +540,7 @@ export default function WriterSentinel() {
                   type="text"
                   value={newLegalName}
                   onChange={(e) => setNewLegalName(e.target.value)}
-                  placeholder="e.g. BASSEM ADEL EL SAID HASSAN"
+                  placeholder={isRTL ? 'مثال: الاسم بالإنجليزية كما في الجمعية' : 'e.g. FULL LEGAL NAME'}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-blue uppercase"
                 />
               </div>
@@ -583,7 +583,7 @@ export default function WriterSentinel() {
                   type="text"
                   value={newAliases}
                   onChange={(e) => setNewAliases(e.target.value)}
-                  placeholder="باسم عادل, Bassem Adel, Hassan Bassem"
+                  placeholder={isRTL ? 'مثال: الاسم البديل، التهجئة الإنجليزية' : 'e.g. Stage alias, English transliteration'}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-blue"
                 />
               </div>

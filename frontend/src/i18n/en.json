@@ -82,7 +82,7 @@
   "sentinel.title": "Writer & Repertoire Sentinel",
   "sentinel.subtitle": "Continuous automated scraping & cross-matching across The MLC, SACEM de Paris, DistroKid, and DSPs.",
   "sentinel.addWriter": "Add Writer / Lyricist",
-  "sentinel.quickSeed": "Load Partner Repertoire (Bassem Adel / Mazzika)",
+  "sentinel.quickSeed": "Load Demo Repertoire Profile (Benchmark Catalog)",
   "sentinel.scanNow": "Run Deep Sentinel Scan",
   "sentinel.registeredWorks": "Registered Works & Splits",
   "sentinel.noHandlers": "No writers or handlers added yet. Click below to add or load your partner's profile."

@@ -82,7 +82,7 @@
   "sentinel.title": "مراقب قيود الشاعر والملحن وحقوق الأداء",
   "sentinel.subtitle": "مسح ومراقبة دورية آلية لقوائم المصنفات المسجلة عبر The MLC وSACEM باريس وDistroKid والمنصات الرقمية.",
   "sentinel.addWriter": "إضافة شاعر أو ملحن للمراقبة",
-  "sentinel.quickSeed": "تحميل سجل الشريك (باسم عادل / مزيكا)",
+  "sentinel.quickSeed": "تحميل نموذج سجل مؤلف وملحن تجريبي",
   "sentinel.scanNow": "بدء فحص الحارس الفوري",
   "sentinel.registeredWorks": "المصنفات المسجلة والحصص",
   "sentinel.noHandlers": "لم يتم إضافة شعراء أو ملحنين للمراقبة بعد. انقر أدناه للبدء."

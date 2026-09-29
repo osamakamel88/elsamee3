@@ -39,8 +39,8 @@ export default function RoyaltyEstimatorModal({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [title, setTitle] = useState(initialTitle || (isRTL ? 'مصنف موسيقي / غنائي' : 'Musical / Lyrical Work'));
-  const [artist, setArtist] = useState(initialArtist || (isRTL ? 'باسم عادل (شاعر) / فنان' : 'Bassem Adel / Artist'));
+  const [title, setTitle] = useState(initialTitle || '');
+  const [artist, setArtist] = useState(initialArtist || '');
   const [role, setRole] = useState(initialRole || 'lyricist');
   const [currency, setCurrency] = useState('EGP');
   const [territory, setTerritory] = useState('mena');

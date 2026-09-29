@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 import sys
+import asyncio
 
 # Ensure VERCEL environment variable is active
 os.environ["VERCEL"] = "1"
@@ -19,6 +20,10 @@ from app.services.valuation.royalty_calculator import (
     DSP_RATES,
     YOUTUBE_METRICS,
     SYNC_BENCHMARKS
+)
+from app.services.valuation.live_auditor import (
+    audit_song_profits,
+    AuditRequest
 )
 
 class handler(BaseHTTPRequestHandler):
@@ -52,9 +57,21 @@ class handler(BaseHTTPRequestHandler):
             body_str = body_bytes.decode('utf-8')
             payload = json.loads(body_str) if body_str else {}
 
-            req = ValuationRequest(**payload)
-            res = calculate_royalties_and_damages(req)
-            out_data = res.model_dump()
+            # Distinguish between Live Audit vs Manual Valuation
+            is_audit = (
+                "audit" in self.path
+                or payload.get("action") == "audit"
+                or ("query" in payload and "youtube_views" not in payload)
+            )
+
+            if is_audit:
+                audit_req = AuditRequest(**payload)
+                res = asyncio.run(audit_song_profits(audit_req))
+                out_data = res.model_dump()
+            else:
+                req = ValuationRequest(**payload)
+                res = calculate_royalties_and_damages(req)
+                out_data = res.model_dump()
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -70,7 +87,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({
-                "error": "Valuation calculation failed",
+                "error": "Valuation operation failed",
                 "message": str(e),
                 "traceback": err
             }).encode('utf-8'))

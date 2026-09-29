@@ -13,6 +13,14 @@
       "destination": "/api/valuation.py"
     },
     {
+      "source": "/api/search",
+      "destination": "/api/search.py"
+    },
+    {
+      "source": "/api/search/(.*)",
+      "destination": "/api/search.py"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

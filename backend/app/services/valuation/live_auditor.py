@@ -73,11 +73,46 @@ async def fetch_real_youtube_metrics(query: str) -> tuple[int, List[AuditedVideo
         "Accept-Language": "en-US,en;q=0.9,ar;q=0.8"
     }
 
-    url = f"https://www.youtube.com/results?search_query={clean_q.replace(' ', '+')}"
     total_views = 0
     videos: List[AuditedVideo] = []
     detected_title = clean_q
     detected_artist = "Artist"
+
+    # Check if query is a direct YouTube link (watch, shorts, youtu.be)
+    yt_url_match = re.search(r'(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})', clean_q)
+    if yt_url_match:
+        video_id = yt_url_match.group(1)
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+        try:
+            async with httpx.AsyncClient(headers=headers, timeout=8.0, follow_redirects=True, verify=False) as client:
+                res = await client.get(video_url)
+                html = res.text
+                
+                title_m = re.search(r'<meta name="title" content="([^"]+)">', html) or re.search(r'\"title\":\{\"runs\":\[\{\"text\":\"([^\"]+)\"\}', html)
+                v_title = title_m.group(1) if title_m else "Infringing Video Upload"
+                
+                views_m = re.search(r'<meta itemprop="interactionCount" content="(\d+)">', html) or re.search(r'\"viewCount\":\{\"videoViewCountRenderer\":\{\"viewCount\":\{\"simpleText\":\"([^\"]+)\"\}', html)
+                v_views = int(re.sub(r'[^\d]', '', views_m.group(1))) if views_m else 0
+                
+                author_m = re.search(r'<link itemprop="name" content="([^"]+)">', html) or re.search(r'\"ownerChannelName\":\"([^\"]+)\"', html)
+                v_channel = author_m.group(1) if author_m else "Unauthorized Channel"
+                
+                if v_views > 0:
+                    videos.append(AuditedVideo(
+                        title=v_title,
+                        views=v_views,
+                        views_formatted=f"{v_views:,}",
+                        url=video_url,
+                        channel=v_channel
+                    ))
+                    total_views = v_views
+                    detected_title = v_title
+                    detected_artist = v_channel
+                    return total_views, videos, detected_title, detected_artist
+        except Exception as e:
+            print(f"Direct video inspect notice: {e}")
+
+    url = f"https://www.youtube.com/results?search_query={clean_q.replace(' ', '+')}"
 
     try:
         async with httpx.AsyncClient(headers=headers, timeout=8.0, follow_redirects=True, verify=False) as client:

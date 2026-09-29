@@ -4,12 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
-import Logo from '../components/Logo';
 import api from '../api/client';
-import { Shield, Mail, Lock, Loader2, LogIn, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function Login() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -34,14 +33,13 @@ export default function Login() {
       const data = response.data;
       if (data.access_token && data.user) {
         login(data.access_token, data.user);
-        toast.success(isRTL ? `مرحباً بك مجدداً، ${data.user.fullName || data.user.email}!` : `Welcome back!`);
+        toast.success(isRTL ? 'مرحباً بك!' : 'Welcome back!');
         navigate('/dashboard');
       } else {
-        toast.error(isRTL ? 'فشل تسجيل الدخول، تحقق من البيانات.' : 'Login failed. Please verify credentials.');
+        toast.error(isRTL ? 'فشل تسجيل الدخول' : 'Login failed');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      const msg = err.response?.data?.detail || err.response?.data?.message || (isRTL ? 'البريد أو كلمة المرور غير صحيحة.' : 'Incorrect email or password.');
+      const msg = err.response?.data?.detail || (isRTL ? 'بيانات غير صحيحة' : 'Invalid credentials');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -52,59 +50,57 @@ export default function Login() {
     login('demo_vault_token_authorized', {
       id: 'demo-user-vault-001',
       email: 'creator@elsamee3.com',
-      fullName: isRTL ? 'فنان تجريبي معتمد' : 'Verified Demo Artist',
+      fullName: isRTL ? 'فنان تجريبي' : 'Demo Artist',
       artistType: 'both',
       country: 'EG',
     });
-    toast.success(isRTL ? 'تم تسجيل الدخول السريع كفنان تجريبي!' : 'Signed in as Demo Artist!');
+    toast.success(isRTL ? 'تم الدخول كفنان تجريبي' : 'Signed in as Demo Artist');
     navigate('/dashboard');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4">
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="absolute top-5 end-5">
         <LanguageToggle />
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/80 w-full max-w-md space-y-6">
-        <div className="text-center space-y-3">
-          <div className="flex justify-center mb-1">
-            <Logo size="lg" />
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500">
-            {isRTL
-              ? 'تسجيل الدخول إلى خزنة الملكية الفكرية وإدارة المصنفات'
-              : 'Sign in to your copyright vault & repertoire'}
+      <div className="w-full max-w-sm space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold tracking-display">
+            {isRTL ? 'السميع' : 'elsamee3'}
+          </h1>
+          <p className="text-sm text-ash">
+            {isRTL ? 'تسجيل الدخول إلى حسابك' : 'Sign in to your account'}
           </p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-              <Mail size={15} className="text-brand-blue" />
-              <span>{t('auth.email') || 'البريد الإلكتروني'}</span>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-ash">
+              {isRTL ? 'البريد الإلكتروني' : 'Email'}
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="artist@example.com"
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-blue focus:border-brand-blue outline-none text-slate-800 text-sm transition-all"
+              className="w-full px-4 py-3 bg-mist border border-smoke rounded-lg focus:bg-white focus:ring-1 focus:ring-ink/20 focus:border-ink/30 outline-none text-sm transition-all"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-              <Lock size={15} className="text-brand-blue" />
-              <span>{t('auth.password') || 'كلمة المرور'}</span>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-ash">
+              {isRTL ? 'كلمة المرور' : 'Password'}
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-blue focus:border-brand-blue outline-none text-slate-800 text-sm transition-all"
+              className="w-full px-4 py-3 bg-mist border border-smoke rounded-lg focus:bg-white focus:ring-1 focus:ring-ink/20 focus:border-ink/30 outline-none text-sm transition-all"
               required
             />
           </div>
@@ -112,53 +108,49 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 mt-2"
+            className="w-full py-3 bg-ink text-white rounded-lg font-medium text-sm hover:bg-ink/85 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>{isRTL ? 'جاري التحقق...' : 'Signing In...'}</span>
+                <Loader2 size={16} className="animate-spin" />
+                <span>{isRTL ? 'جاري الدخول...' : 'Signing in...'}</span>
               </>
             ) : (
-              <>
-                <LogIn size={18} />
-                <span>{isRTL ? 'تسجيل الدخول' : 'Sign In'}</span>
-              </>
+              <span>{isRTL ? 'تسجيل الدخول' : 'Sign in'}</span>
             )}
           </button>
         </form>
 
-        {/* Demo Fast Login Option */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 rounded-xl text-slate-600 hover:text-slate-900 font-semibold text-xs transition-all flex items-center justify-center gap-2"
-          >
-            <Sparkles size={14} className="text-amber-500" />
-            <span>{isRTL ? 'دخول تجريبي سريع للمعاينة (Demo Mode)' : 'Quick Demo Access'}</span>
-          </button>
-        </div>
-
-        <div className="pt-2 text-center text-xs sm:text-sm text-slate-600 border-t border-slate-100">
-          <span>{isRTL ? 'ليس لديك حساب؟' : "Don't have an account?"} </span>
-          <Link to="/register" className="text-brand-blue font-bold hover:underline ms-1">
-            {isRTL ? 'إنشاء حساب جديد' : 'Register now'}
-          </Link>
-        </div>
-      </div>
-
-      {/* Footer Attribution */}
-      <div className="mt-6 text-center text-xs text-slate-500">
-        <span>© {new Date().getFullYear()} elsamee3 • {isRTL ? 'تصميم وتطوير بواسطة' : 'Designed & Developed by'}{' '}</span>
-        <a
-          href="https://o3.instafeed.cloud"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold text-brand-blue hover:underline"
+        {/* Demo */}
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          className="w-full py-2.5 text-xs font-medium text-ash hover:text-ink border border-dashed border-smoke rounded-lg hover:border-ink/20 transition-colors"
         >
-          O3 Smart Solutions
-        </a>
+          {isRTL ? 'دخول تجريبي سريع' : 'Quick demo access'}
+        </button>
+
+        {/* Register link */}
+        <p className="text-center text-xs text-ash">
+          {isRTL ? 'ليس لديك حساب؟' : "Don't have an account?"}{' '}
+          <Link to="/register" className="font-medium text-ink hover:underline underline-offset-2">
+            {isRTL ? 'إنشاء حساب' : 'Register'}
+          </Link>
+        </p>
+
+        {/* Footer */}
+        <p className="text-center text-[11px] text-ash/60">
+          &copy; {new Date().getFullYear()} elsamee3 &middot;{' '}
+          {isRTL ? 'تصميم وتطوير' : 'Designed & Developed by'}{' '}
+          <a
+            href="https://o3.instafeed.cloud"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline underline-offset-2"
+          >
+            O3 Smart Solutions
+          </a>
+        </p>
       </div>
     </div>
   );

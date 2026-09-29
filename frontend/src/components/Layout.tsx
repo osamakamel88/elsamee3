@@ -2,65 +2,49 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import LanguageToggle from './LanguageToggle';
-import Logo from './Logo';
-import { Menu, ShieldCheck } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Menu } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-
 import Footer from './Footer';
 
 export default function Layout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const { t } = useTranslation();
   const { isRTL } = useLanguage();
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans antialiased text-slate-800" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Mobile Drawer Backdrop */}
+    <div className="flex min-h-screen bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Mobile backdrop */}
       {mobileSidebarOpen && (
         <div
           onClick={() => setMobileSidebarOpen(false)}
-          className="fixed inset-0 bg-slate-950/60 z-40 backdrop-blur-sm md:hidden transition-opacity"
+          className="fixed inset-0 bg-ink/20 backdrop-blur-sm z-40 md:hidden"
           aria-hidden="true"
         />
       )}
 
-      {/* Responsive Sidebar */}
       <Sidebar
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-30">
-          {/* Mobile hamburger menu & branding */}
-          <div className="flex items-center gap-2.5 md:hidden">
-            <button
-              onClick={() => setMobileSidebarOpen(true)}
-              className="p-2 -ms-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
-              aria-label="Open navigation menu"
-            >
-              <Menu size={22} />
-            </button>
-            <Logo size="sm" />
-          </div>
+        {/* Top bar */}
+        <header className="h-14 bg-white border-b border-smoke flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+          <button
+            onClick={() => setMobileSidebarOpen(true)}
+            className="md:hidden p-1.5 text-ash hover:text-ink rounded-lg transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
 
-          {/* Desktop trust indicator */}
-          <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <ShieldCheck size={16} className="text-emerald-500" />
-            <span>{isRTL ? 'نظام حماية المصنفات وحقوق المؤلفين نشط' : 'Real-time Copyright Guardian Active'}</span>
-          </div>
+          <div className="hidden md:block" />
 
-          {/* Header Actions (Language Toggle) */}
-          <div className="flex items-center gap-2">
-            <LanguageToggle />
-          </div>
+          <LanguageToggle />
         </header>
 
-        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden overflow-y-auto flex flex-col justify-between">
+        <main className="flex-1 p-4 sm:p-8 overflow-x-hidden overflow-y-auto flex flex-col justify-between">
           <Outlet />
-          <Footer variant="compact" className="mt-8" />
+          <Footer variant="compact" className="mt-12" />
         </main>
       </div>
     </div>

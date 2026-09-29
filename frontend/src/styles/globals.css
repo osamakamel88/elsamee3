@@ -3,32 +3,44 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply antialiased text-slate-900 bg-slate-50;
+    @apply bg-white text-ink;
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1;
+  }
+  ::selection {
+    @apply bg-ink text-white;
   }
 }
 
-/* Custom Scrollbar */
+/* Refined scrollbar — almost invisible */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 99px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400;
+  background: rgba(0, 0, 0, 0.22);
 }
 
 [dir="rtl"] {
-  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+  font-family: 'Noto Sans Arabic', 'Inter', system-ui, sans-serif;
 }
 [dir="ltr"] {
-  font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+  font-family: 'Inter', 'Noto Sans Arabic', system-ui, sans-serif;
+}
+
+/* Smooth transitions everywhere */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }

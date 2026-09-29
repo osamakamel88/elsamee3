@@ -7,9 +7,9 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLanguage}
-      className="px-3 py-1 rounded-md bg-slate-200 hover:bg-slate-300 text-slate-700 transition-colors"
+      className="px-3 py-1.5 text-xs font-medium text-ash hover:text-ink border border-smoke rounded-full hover:border-ink/20 transition-colors"
     >
-      {currentLanguage === 'en' ? 'عربي' : 'English'}
+      {currentLanguage === 'en' ? 'عربي' : 'EN'}
     </button>
   );
 }

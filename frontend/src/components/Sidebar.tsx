@@ -11,13 +11,11 @@ import {
   FileText,
   Settings,
   LogOut,
-  X
+  X,
+  Home,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import Logo from './Logo';
-
-import { Sparkles, Globe } from 'lucide-react';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -30,72 +28,72 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { isRTL } = useLanguage();
 
   const links = [
-    { to: '/dashboard', icon: <LayoutDashboard size={20} />, label: t('nav.dashboard') },
-    { to: '/search', icon: <Search size={20} />, label: t('nav.search') },
-    { to: '/estimator', icon: <Calculator size={20} />, label: t('nav.estimator') },
-    { to: '/works', icon: <Music size={20} />, label: t('nav.myWorks') },
-    { to: '/monitoring', icon: <Radar size={20} />, label: t('nav.monitoring') },
-    { to: '/alerts', icon: <Bell size={20} />, label: t('nav.alerts') },
-    { to: '/takedowns', icon: <FileText size={20} />, label: t('nav.takedowns') },
-    { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
-    { to: '/', icon: <Sparkles size={19} className="text-cyan-400" />, label: isRTL ? 'كتالوج المنصة (الرئيسية)' : 'Platform Catalog (Home)' },
+    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: t('nav.dashboard') },
+    { to: '/search', icon: <Search size={18} />, label: t('nav.search') },
+    { to: '/estimator', icon: <Calculator size={18} />, label: t('nav.estimator') },
+    { to: '/works', icon: <Music size={18} />, label: t('nav.myWorks') },
+    { to: '/monitoring', icon: <Radar size={18} />, label: t('nav.monitoring') },
+    { to: '/alerts', icon: <Bell size={18} />, label: t('nav.alerts') },
+    { to: '/takedowns', icon: <FileText size={18} />, label: t('nav.takedowns') },
+    { to: '/settings', icon: <Settings size={18} />, label: t('nav.settings') },
+    { to: '/', icon: <Home size={18} />, label: isRTL ? 'الرئيسية' : 'Home' },
   ];
 
   return (
     <aside
       className={`
         fixed md:static inset-y-0 start-0 z-50
-        w-72 md:w-64 bg-slate-900 text-slate-100 flex flex-col min-h-screen
-        transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
+        w-64 bg-white border-e border-smoke text-ink flex flex-col min-h-screen
+        transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 rtl:translate-x-full rtl:md:translate-x-0'}
       `}
     >
-      {/* Sidebar Header with Close button on mobile */}
-      <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-800">
-        <Logo theme="dark" size="sm" />
+      {/* Header */}
+      <div className="px-5 h-16 flex items-center justify-between border-b border-smoke">
+        <span className="text-base font-bold tracking-display">elsamee3</span>
         {onClose && (
           <button
             onClick={onClose}
-            className="md:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="md:hidden p-1.5 text-ash hover:text-ink rounded-lg transition-colors"
             aria-label="Close navigation"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         )}
       </div>
 
-      <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
-            onClick={() => {
-              if (onClose) onClose();
-            }}
+            onClick={() => { if (onClose) onClose(); }}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-[13px] font-medium ${
                 isActive
-                  ? 'bg-brand-blue text-white shadow-md shadow-blue-900/30'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-mist text-ink'
+                  : 'text-ash hover:text-ink hover:bg-mist/60'
               }`
             }
           >
             {link.icon}
-            <span className="font-medium text-sm sm:text-base">{link.label}</span>
+            <span>{link.label}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-800">
+      {/* Logout */}
+      <div className="px-3 py-4 border-t border-smoke">
         <button
           onClick={() => {
             if (onClose) onClose();
             logout();
           }}
-          className="flex items-center gap-3 px-4 py-3 w-full text-start rounded-xl text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 w-full text-start rounded-lg text-ash hover:text-ink hover:bg-mist/60 transition-colors text-[13px] font-medium"
         >
-          <LogOut size={20} />
-          <span className="font-medium text-sm sm:text-base">{t('nav.logout')}</span>
+          <LogOut size={18} />
+          <span>{t('nav.logout')}</span>
         </button>
       </div>
     </aside>

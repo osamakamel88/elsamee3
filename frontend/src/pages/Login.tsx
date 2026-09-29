@@ -147,6 +147,19 @@ export default function Login() {
           </Link>
         </div>
       </div>
+
+      {/* Footer Attribution */}
+      <div className="mt-6 text-center text-xs text-slate-500">
+        <span>© {new Date().getFullYear()} elsamee3 • {isRTL ? 'تصميم وتطوير بواسطة' : 'Designed & Developed by'}{' '}</span>
+        <a
+          href="https://o3.instafeed.cloud"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold text-brand-blue hover:underline"
+        >
+          O3 Smart Solutions
+        </a>
+      </div>
     </div>
   );
 }

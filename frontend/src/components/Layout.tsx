@@ -7,6 +7,8 @@ import { Menu, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../contexts/LanguageContext';
 
+import Footer from './Footer';
+
 export default function Layout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { t } = useTranslation();
@@ -56,8 +58,9 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden overflow-y-auto flex flex-col justify-between">
           <Outlet />
+          <Footer variant="compact" className="mt-8" />
         </main>
       </div>
     </div>

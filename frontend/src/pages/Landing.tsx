@@ -5,6 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
 import Logo from '../components/Logo';
+import Footer from '../components/Footer';
 import {
   Shield,
   Zap,
@@ -19,20 +20,20 @@ import {
   ArrowLeft,
   Sparkles,
   ExternalLink,
-  ChevronRight,
   Radar,
-  FileText,
   Fingerprint,
   Globe2,
   Layers,
   BarChart3,
-  Eye
+  ShieldCheck,
+  Check,
+  Radio
 } from 'lucide-react';
 
 export default function Landing() {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
@@ -40,116 +41,108 @@ export default function Landing() {
   const capabilities = [
     {
       id: 'acoustic',
-      badge: isRTL ? 'فحص صوتي' : 'Acoustic Scan',
-      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-      icon: <Music className="text-blue-400" size={26} />,
+      badge: isRTL ? 'فحص الألحان' : 'Acoustic Scan',
+      badgeStyle: 'bg-blue-50 text-blue-700 border-blue-200',
+      icon: <Music className="text-brand-blue" size={24} />,
       title: isRTL ? 'البصمة الصوتية اللحنية' : 'Acoustic Melodic Fingerprinting',
       description: isRTL
-        ? 'تحليل الطيف الترددي للألحان والمقاطع الصوتية لاكتشاف الاقتباس والسرقات اللحنية بدقة متناهية حتى بعد تغيير سرعة المقطع أو نغمته (Pitch/Tempo Shift).'
+        ? 'تحليل الطيف الترددي للألحان والمقاطع الموسيقية لاكتشاف الاقتباس والسرقات اللحنية بدقة متناهية حتى بعد تغيير سرعة المقطع أو نغمته (Pitch/Tempo Shift).'
         : 'Deep acoustic wave analysis to identify melody copying, sample manipulation, and unlicensed re-recordings with high forensic confidence.',
       actionText: isRTL ? 'فحص ملف صوتي' : 'Scan Audio File',
       actionUrl: '/search',
     },
     {
       id: 'lyrics',
-      badge: isRTL ? 'توثيق كلمات' : 'Poetry Proof',
-      badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-      icon: <Feather className="text-purple-400" size={26} />,
+      badge: isRTL ? 'توثيق الكلمات' : 'Lyrics Seal',
+      badgeStyle: 'bg-purple-50 text-purple-700 border-purple-200',
+      icon: <Feather className="text-purple-600" size={24} />,
       title: isRTL ? 'شهادة إثبات الأسبقية للشعراء' : 'Proof of Creation for Lyricists',
       description: isRTL
         ? 'توليد بصمة نصية مشفرة SHA-256 وفق معايير NIST FIPS واستخراج شهادة رقمية رسمية تثبت تاريخ كتابة النص الغنائي لمنع سرقة الكلمات والقصائد.'
         : 'Generate cryptographic SHA-256 creation hashes with timestamps, providing lyricists with irrefutable proof-of-authorship certificates.',
-      actionText: isRTL ? 'توثيق كلمات قصيدة' : 'Generate Lyrics Hash',
+      actionText: isRTL ? 'توثيق كلمات قصيدة' : 'Generate Lyrics Certificate',
       actionUrl: '/search',
     },
     {
       id: 'cmo',
-      badge: isRTL ? 'هيئات عربية' : 'Arab CMOs',
-      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      icon: <Building2 className="text-emerald-400" size={26} />,
-      title: isRTL ? 'كتالوج الهيئات والجمعيات العربية' : 'Arab Copyright Societies Repertoire',
+      badge: isRTL ? 'الهيئات والجمعيات' : 'Global Repertoire',
+      badgeStyle: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+      icon: <Building2 className="text-emerald-700" size={24} />,
+      title: isRTL ? 'كتالوج الهيئات والجمعيات الدولية' : 'Global & Arab Collecting Societies',
       description: isRTL
-        ? 'فحص متكامل يربط سجلات جمعية المؤلفين والملحنين بمصر (SACERAU)، الملكية الفكرية السعودية (SAIP)، ديوان ONDA بالجزائر، ومكتب BMDA بالمغرب ورموز ISWC الدولية.'
+        ? 'فحص شامل يربط سجلات جمعية المؤلفين والملحنين بمصر (SACERAU)، الملكية الفكرية السعودية (SAIP)، ديوان ONDA بالجزائر، ومكتب BMDA بالمغرب ورموز ISWC الدولية.'
         : 'Direct unified queries across Arab collecting societies (SACERAU, SAIP, ONDA, BMDA) and international ISWC composition registers.',
-      actionText: isRTL ? 'استعلام الهيئات' : 'Query CMOs',
+      actionText: isRTL ? 'استعلام الهيئات' : 'Query Repertoires',
       actionUrl: '/search',
     },
     {
       id: 'damages',
-      badge: isRTL ? 'تدقيق مالي' : 'Revenue Audit',
-      badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-      icon: <Calculator className="text-amber-400" size={26} />,
+      badge: isRTL ? 'تدقيق مالي' : 'Royalties Audit',
+      badgeStyle: 'bg-amber-50 text-amber-800 border-amber-200',
+      icon: <Calculator className="text-amber-600" size={24} />,
       title: isRTL ? 'حاسبة العائدات والتعويضات المسروقة' : 'Live Stolen Royalties Auditor',
       description: isRTL
-        ? 'تدقيق مباشر لروابط يوتيوب والفيديوهات غير المصرح بها واحتساب إجمالي العائدات المالية المسلوبة وقيمة التعويضات القانونية المستحقة بالجنيه والريال والدولار.'
+        ? 'تدقيق مباشر لروابط الفيديوهات غير المصرح بها واحتساب إجمالي العائدات المالية المسلوبة وقيمة التعويضات القانونية المستحقة بالجنيه والريال والدولار.'
         : 'Direct video URL auditing to calculate exact stolen ad revenue, mechanical streaming royalties, and legal statutory damages instantly.',
       actionText: isRTL ? 'تدقيق رابط منتهك' : 'Audit Infringing URL',
       actionUrl: '/estimator',
     },
     {
       id: 'radar',
-      badge: isRTL ? 'رصد آلي' : 'Auto Radar',
-      badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-      icon: <Radar className="text-rose-400" size={26} />,
+      badge: isRTL ? 'رصد دائم' : 'Auto Radar',
+      badgeStyle: 'bg-rose-50 text-rose-700 border-rose-200',
+      icon: <Radar className="text-rose-600" size={24} />,
       title: isRTL ? 'المراقبة المستمرة وإشعارات DMCA' : 'Automated Radar & Takedowns',
       description: isRTL
-        ? 'رادار مستمر يرصد منصات البث الرقمي وشبكات التواصل، وينبهك فور رصد أي استخدام غير مرخص لمصنفك مع توليد إخطارات قانونية ملزمة بضغطة زر.'
+        ? 'رادار مستمر يرصد منصات البث الرقمي وشبكات التواصل، وينبهك فور رصد أي استخدام غير مرخص لمصنفك مع صياغة إخطارات إزالة قانونية بنقرة واحدة.'
         : 'Continuous multi-platform monitoring that alerts you the moment your work is detected, with one-click compliant DMCA notice generation.',
       actionText: isRTL ? 'استعراض الرادار' : 'Explore Radar',
       actionUrl: '/monitoring',
     },
     {
       id: 'vault',
-      badge: isRTL ? 'خزنة رقمية' : 'Digital Vault',
-      badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-      icon: <Shield className="text-cyan-400" size={26} />,
+      badge: isRTL ? 'خزنة رقمية' : 'Creative Vault',
+      badgeStyle: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+      icon: <Shield className="text-cyan-700" size={24} />,
       title: isRTL ? 'خزنة المصنفات والأعمال الرقمية' : 'Creative Repertoire Vault',
       description: isRTL
-        ? 'أرشيف رقمي سيادي مشفر يتيح للفنانين تسجيل كافة أعمالهم الغنائية، اللحنية، والبصرية وحفظ بصماتها ورموز ISRC/ISWC في مكان واحد آمن.'
+        ? 'أرشيف رقمي سيادي مشفر يتيح للفنانين حول العالم تسجيل كافة أعمالهم الغنائية، اللحنية، والبصرية وحفظ بصماتها ورموز ISRC و ISWC في مكان واحد آمن.'
         : 'A sovereign encrypted vault where creators organize, store, and manage all their musical and visual works with instant forensic traceability.',
       actionText: isRTL ? 'لوحة المصنفات' : 'My Works Vault',
       actionUrl: '/works',
     },
   ];
 
-  const arabSocieties = [
-    { name: '🇪🇬 SACERAU', label: isRTL ? 'جمعية المؤلفين والملحنين (مصر)' : 'Authors & Composers Society (Egypt)' },
+  const globalCoverage = [
+    { name: '🇪🇬 SACERAU', label: isRTL ? 'جمعية المؤلفين والملحنين بمصر' : 'Authors & Composers Society (Egypt)' },
     { name: '🇸🇦 SAIP', label: isRTL ? 'الهيئة السعودية للملكية الفكرية' : 'Saudi Intellectual Property Authority' },
     { name: '🇩🇿 ONDA', label: isRTL ? 'الديوان الوطني لحقوق المؤلف (الجزائر)' : 'National Copyright Office (Algeria)' },
     { name: '🇲🇦 BMDA', label: isRTL ? 'المكتب المغربي لحقوق المؤلف' : 'Moroccan Copyright Bureau' },
-    { name: '🇹🇳 OTPDA', label: isRTL ? 'المؤسسة التونسية لحقوق المؤلف' : 'Tunisian Copyright Body' },
-    { name: '🌐 The MLC & CISAC', label: isRTL ? 'المكانيكال الدولي وسجلات ISWC' : 'Global Mechanical & ISWC Registers' },
+    { name: '🌐 The MLC & ISWC', label: isRTL ? 'المكانيكال الدولي وسجلات ISWC' : 'Global Mechanical & ISWC Registers' },
+    { name: '🎵 Global DSPs', label: isRTL ? 'يوتيوب وسبوتيفاي وآبل ميوزك' : 'YouTube, Spotify & Apple Music' },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-brand-blue selection:text-white" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Dynamic Background Glows */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] start-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-600/10 blur-[120px]" />
-        <div className="absolute top-[20%] end-[-5%] w-[45vw] h-[45vw] rounded-full bg-purple-600/10 blur-[130px]" />
-        <div className="absolute bottom-[-10%] start-[25%] w-[40vw] h-[40vw] rounded-full bg-cyan-600/10 blur-[140px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-25" />
-      </div>
-
+    <div className="min-h-screen bg-white text-slate-800 font-sans selection:bg-brand-blue selection:text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Navbar */}
-      <header className="relative z-20 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-          <Logo theme="dark" size="md" />
+          <Logo theme="light" size="md" />
 
-          {/* Navigation Links for Desktop */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-300">
-            <a href="#capabilities" className="hover:text-white transition-colors">
+          {/* Desktop Nav Links */}
+          <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-600">
+            <a href="#capabilities" className="hover:text-brand-blue transition-colors">
               {isRTL ? 'كتالوج القدرات' : 'Capabilities Catalog'}
             </a>
-            <a href="#arab-cmo" className="hover:text-white transition-colors">
-              {isRTL ? 'الهيئات والجمعيات' : 'Arab Repertoire'}
+            <a href="#global-repertoire" className="hover:text-brand-blue transition-colors">
+              {isRTL ? 'الهيئات والجمعيات' : 'Global Repertoires'}
             </a>
-            <a href="#estimator-preview" className="hover:text-white transition-colors">
-              {isRTL ? 'حاسبة التعويضات' : 'Damages Auditor'}
+            <a href="#how-it-works" className="hover:text-brand-blue transition-colors">
+              {isRTL ? 'كيف يعمل؟' : 'How It Works'}
             </a>
-            <Link to="/search" className="hover:text-cyan-400 text-cyan-300 font-bold transition-colors flex items-center gap-1.5">
-              <Zap size={15} />
-              <span>{isRTL ? 'الأداة التجريبية' : 'Live Beta Tool'}</span>
+            <Link to="/estimator" className="hover:text-brand-blue transition-colors flex items-center gap-1">
+              <Calculator size={14} className="text-amber-600" />
+              <span>{isRTL ? 'حاسبة التعويضات' : 'Damages Auditor'}</span>
             </Link>
           </nav>
 
@@ -160,25 +153,25 @@ export default function Landing() {
             {isAuthenticated ? (
               <Link
                 to="/dashboard"
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
+                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-brand-blue hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2"
               >
                 <span>{isRTL ? 'لوحة التحكم' : 'Dashboard'}</span>
                 <ArrowIcon size={16} />
               </Link>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Link
                   to="/login"
-                  className="hidden sm:inline-flex px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 font-semibold text-xs sm:text-sm transition-all"
+                  className="hidden sm:inline-flex px-3.5 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-semibold text-xs sm:text-sm transition-all"
                 >
                   {isRTL ? 'تسجيل الدخول' : 'Sign In'}
                 </Link>
                 <Link
                   to="/search"
-                  className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-brand-blue to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
+                  className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-brand-blue hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5"
                 >
-                  <Sparkles size={15} className="text-cyan-300" />
-                  <span>{isRTL ? 'جرب الأداة (Beta)' : 'Try Beta'}</span>
+                  <Zap size={14} className="fill-white" />
+                  <span>{isRTL ? 'جرب الأداة (Beta)' : 'Try Beta Tool'}</span>
                 </Link>
               </div>
             )}
@@ -186,80 +179,83 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-16 pb-20 sm:pt-24 sm:pb-28 overflow-hidden">
+      {/* Hero Section - Light, Simple & Breathable */}
+      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 bg-gradient-to-b from-slate-50/70 via-white to-white overflow-hidden">
+        {/* Subtle decorative background circle */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-blue-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
+
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          {/* Beta Badge Indicator */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-xs sm:text-sm font-semibold shadow-inner">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+          {/* Open Beta Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 text-xs sm:text-sm font-semibold text-blue-900 shadow-2xs">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-cyan-300">
-              {isRTL ? 'متاح الآن في المرحلة التجريبية المفتوحة (Public Beta)' : 'Now Live in Public Beta'}
+            <span className="text-brand-blue font-bold">
+              {isRTL ? 'متاح الآن في المرحلة التجريبية المفتوحة (Public Beta)' : 'Now Live in Public Beta for Artists Worldwide'}
             </span>
-            <span className="text-slate-500">•</span>
-            <span className="text-slate-300">
-              {isRTL ? 'تجربة حية فورية بدون اشتراك' : 'Instant free trial without paywall'}
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-600 font-medium">
+              {isRTL ? 'فحص حي وفوري مجاناً' : 'Free instant forensic trial'}
             </span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.2] sm:leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.25] sm:leading-[1.18]">
             {isRTL ? (
               <>
-                درع <span className="bg-gradient-to-r from-brand-blue via-cyan-400 to-indigo-400 bg-clip-text text-transparent">الملكية الفكرية</span> وبصمة الإبداع للمؤلفين والملحنين
+                درع <span className="text-brand-blue">الملكية الفكرية</span> وبصمة الإبداع للمبدعين والفنانين حول العالم
               </>
             ) : (
               <>
-                AI-Powered <span className="bg-gradient-to-r from-brand-blue via-cyan-400 to-indigo-400 bg-clip-text text-transparent">Copyright Shield</span> & Creative Repertoire
+                Universal <span className="text-brand-blue">Copyright Shield</span> & Forensic Repertoire for Creators
               </>
             )}
           </h1>
 
           {/* Subtitle */}
-          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed">
+          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 font-normal leading-relaxed">
             {isRTL
-              ? 'المنصة السيادية الأولى لفحص السرقات اللحنية، استخراج شهادات إثبات الأسبقية للشعراء بختم SHA-256 المشفر، وتدقيق العائدات المسروقة عبر الربط مع الهيئات وجمعيات المؤلفين والملحنين العربية.'
-              : 'Protect melodies from plagiarism, secure lyrics with NIST-standard cryptographic proof-of-creation hashes, and audit stolen revenues across Arab collecting societies & DSP catalogs.'}
+              ? 'المنصة الشاملة للملحنين والشعراء والموسيقيين لكشف السرقات اللحنية، استخراج شهادات إثبات الأسبقية بختم SHA-256، وتدقيق العائدات المسروقة مباشرة عبر الهيئات والكاتالوجات الدولية.'
+              : 'Empowering songwriters, composers, lyricists, and labels worldwide to detect melody theft, seal lyrics with SHA-256 authorship certificates, and audit stolen DSP revenues.'}
           </p>
 
           {/* MAIN PROMINENT BETA CTA BUTTON */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto">
             <Link
               to="/search"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-400 text-white font-extrabold text-base sm:text-lg shadow-xl shadow-blue-600/30 hover:shadow-cyan-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group border border-white/20"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-blue hover:bg-blue-700 text-white font-extrabold text-base sm:text-lg shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group border border-blue-500"
             >
-              <Zap size={22} className="text-cyan-200 fill-cyan-200 group-hover:animate-bounce" />
+              <Zap size={20} className="fill-white group-hover:animate-pulse" />
               <span>{isRTL ? '⚡ جرب الأداة الرئيسية الآن (Beta)' : '⚡ Launch Beta Tool Now'}</span>
-              <ArrowIcon size={20} className="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+              <ArrowIcon size={19} className="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
             </Link>
 
             <Link
               to="/estimator"
-              className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-sm sm:text-base border border-slate-700/80 hover:border-slate-500 shadow-md transition-all flex items-center justify-center gap-2.5"
+              className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm sm:text-base border border-slate-300 hover:border-slate-400 shadow-2xs transition-all flex items-center justify-center gap-2.5"
             >
-              <Calculator size={19} className="text-amber-400" />
-              <span>{isRTL ? 'حاسبة التعويضات المسروقة' : 'Damages Auditor'}</span>
+              <Calculator size={18} className="text-amber-600" />
+              <span>{isRTL ? 'حاسبة العائدات المسروقة' : 'Damages Auditor'}</span>
             </Link>
           </div>
 
-          {/* Quick Click-to-Test Prompts */}
-          <div className="pt-2">
-            <p className="text-xs text-slate-400 mb-2.5">
-              {isRTL ? 'أو جرب البحث فوراً بهذه الأمثلة المعتمدة:' : 'Or test immediately with these sample queries:'}
+          {/* Clickable Quick Sample Searches */}
+          <div className="pt-1">
+            <p className="text-xs text-slate-400 mb-2">
+              {isRTL ? 'أو ابدأ التجربة فوراً بأحد هذه النماذج:' : 'Or test immediately with these sample queries:'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {[
-                { q: 'الساعة اللي بعيشها في قربك 60 دقيقة', label: isRTL ? '✍️ فحص كلمات أغنية (60 دقيقة)' : '✍️ Lyrics Scan (Assala 60 Min)' },
-                { q: 'SACERAU', label: isRTL ? '🏛️ جمعية ساسيرو بمصر' : '🏛️ SACERAU Egypt' },
+                { q: 'الساعة اللي بعيشها في قربك 60 دقيقة', label: isRTL ? '✍️ فحص كلمات (60 دقيقة)' : '✍️ Lyrics (60 Minutes)' },
+                { q: 'SACERAU', label: isRTL ? '🏛️ جمعية المؤلفين والملحنين (مصر)' : '🏛️ SACERAU Repertoire' },
                 { q: 'SAIP', label: isRTL ? '🇸🇦 الملكية الفكرية السعودية' : '🇸🇦 SAIP Saudi Arabia' },
-                { q: 'ألحان شرقية وبيات', label: isRTL ? '🎼 فحص مصنفات الملحنين' : '🎼 Composers & Melodies' },
+                { q: 'ألحان شرقية', label: isRTL ? '🎼 ألحان ومصنفات موسيقية' : '🎼 Musical Works' },
               ].map((sample) => (
                 <button
                   key={sample.q}
                   onClick={() => navigate('/search')}
-                  className="px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-blue-900/30 border border-slate-800 hover:border-blue-500/50 text-xs text-slate-300 hover:text-cyan-300 font-medium transition-all shadow-xs"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100/90 hover:bg-blue-50 border border-slate-200 text-xs text-slate-700 hover:text-brand-blue font-medium transition-all shadow-2xs"
                 >
                   {sample.label}
                 </button>
@@ -267,54 +263,54 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Key Metrics / Highlights */}
-          <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-slate-800/80">
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">100%</div>
-              <div className="text-xs font-semibold text-slate-400 mt-1">
-                {isRTL ? 'بصمة تشفير SHA-256' : 'NIST Cryptographic Hash'}
+          {/* Trust Highlights Grid - Clean Light Theme */}
+          <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-slate-200/80">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+              <div className="text-2xl sm:text-3xl font-extrabold text-brand-blue font-mono">100%</div>
+              <div className="text-xs font-semibold text-slate-600 mt-1">
+                {isRTL ? 'معايير NIST للتشفير' : 'NIST Cryptographic Proof'}
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-extrabold text-blue-400 font-mono">6+</div>
-              <div className="text-xs font-semibold text-slate-400 mt-1">
-                {isRTL ? 'هيئات حقوق عربية مدعومة' : 'Arab CMO Repertoires'}
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-mono">Global</div>
+              <div className="text-xs font-semibold text-slate-600 mt-1">
+                {isRTL ? 'تغطية للمبدعين عالمياً' : 'Worldwide Artists Coverage'}
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-extrabold text-purple-400 font-mono">0.00$</div>
-              <div className="text-xs font-semibold text-slate-400 mt-1">
-                {isRTL ? 'مجاني بالكامل في النسخة التجريبية' : 'Zero-Fee in Public Beta'}
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+              <div className="text-2xl sm:text-3xl font-extrabold text-purple-600 font-mono">0.00$</div>
+              <div className="text-xs font-semibold text-slate-600 mt-1">
+                {isRTL ? 'مجاني بالكامل في البيتا' : 'Free Public Beta Trial'}
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">&lt; 1.5s</div>
-              <div className="text-xs font-semibold text-slate-400 mt-1">
-                {isRTL ? 'سرعة فحص وتدقيق الروابط' : 'Instant Audit Latency'}
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+              <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 font-mono">&lt; 1.5s</div>
+              <div className="text-xs font-semibold text-slate-600 mt-1">
+                {isRTL ? 'سرعة فحص الروابط والألحان' : 'Instant Audit Latency'}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Capabilities Catalog Section */}
-      <section id="capabilities" className="relative z-10 py-20 bg-slate-900/40 border-t border-b border-slate-800/80">
+      {/* Capabilities Catalog Section - Simple, Clean & Light */}
+      <section id="capabilities" className="py-20 bg-slate-50/50 border-t border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           {/* Section Header */}
           <div className="text-center space-y-3 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-brand-blue border border-blue-200 text-xs font-bold">
               <Layers size={14} />
               <span>{isRTL ? 'كتالوج قدرات منصة السميع' : 'elsamee3 Capabilities Catalog'}</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               {isRTL
-                ? 'كل ما يحتاجه المبدع العربي لحماية حقوقه في منظومة واحدة'
-                : 'Complete Intellectual Property Toolset for Modern Creators'}
+                ? 'حلول سيادية متكاملة لحماية حقوق المبدعين حول العالم'
+                : 'Complete Intellectual Property Toolset for Creators Worldwide'}
             </h2>
-            <p className="text-sm sm:text-base text-slate-400">
+            <p className="text-sm sm:text-base text-slate-600">
               {isRTL
-                ? 'حلول تقنية وقانونية متكاملة للملحنين، الشعراء، كتاب الأغاني، والمنتجين الفنيين.'
-                : 'Forensic tech and legal empowerment tailored for composers, songwriters, lyricists, and independent labels.'}
+                ? 'أدوات تقنية وقانونية متطورة مصممة للملحنين، كتاب الكلمات والشعراء، والفنانين المستقلين.'
+                : 'Advanced forensic tech and royalty auditing tailored for songwriters, composers, lyricists, and artists.'}
             </p>
           </div>
 
@@ -323,36 +319,36 @@ export default function Landing() {
             {capabilities.map((item) => (
               <div
                 key={item.id}
-                className="group relative p-6 sm:p-7 rounded-3xl bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
+                className="group relative p-6 sm:p-7 rounded-3xl bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-blue-300 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 shadow-inner group-hover:scale-105 transition-transform">
+                    <div className="p-3 rounded-2xl bg-blue-50/60 border border-blue-100 shadow-2xs group-hover:bg-blue-100/60 transition-colors">
                       {item.icon}
                     </div>
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${item.badgeColor}`}>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${item.badgeStyle}`}>
                       {item.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-brand-blue transition-colors">
                     {item.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+                <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
                   <Link
                     to={item.actionUrl}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-cyan-400 hover:text-cyan-300 transition-colors group-hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand-blue hover:text-blue-700 transition-colors group-hover:underline"
                   >
                     <span>{item.actionText}</span>
-                    <ArrowIcon size={15} />
+                    <ArrowIcon size={14} />
                   </Link>
-                  <span className="text-[11px] font-mono text-slate-500">Live Beta</span>
+                  <span className="text-[11px] font-semibold text-slate-400">Open Beta</span>
                 </div>
               </div>
             ))}
@@ -360,38 +356,38 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Arab CMO & Collecting Societies Repertoire */}
-      <section id="arab-cmo" className="relative z-10 py-20">
+      {/* Global & Arab Repertoire Section */}
+      <section id="global-repertoire" className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
               <Globe2 size={14} />
-              <span>{isRTL ? 'الربط العربي الإقليمي' : 'Arab Regional Integration'}</span>
+              <span>{isRTL ? 'تغطية إقليمية ودولية' : 'Worldwide Repertoires & Societies'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
               {isRTL
-                ? 'فحص شامل عبر هيئات وجمعيات المؤلفين والملحنين'
-                : 'Query Arab Collecting Societies & International Works'}
+                ? 'فحص شامل عبر الهيئات وجمعيات المؤلفين والملحنين'
+                : 'Unified Cross-Queries Across Collecting Societies'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto">
               {isRTL
-                ? 'تستعلم المنصة السجلات المعتمدة لحفظ حقوق الأداء العلني والتوزيع الميكانيكي للمصنفات الغنائية والموسيقية.'
-                : 'Verify ownership data across regional public performance societies and international mechanical repertoires.'}
+                ? 'تدقيق مباشر لقواعد بيانات الأداء العلني والتوزيع الميكانيكي للمصنفات الفنية في مصر والسعودية والجزائر والمغرب والسجلات العالمية.'
+                : 'Verify ownership data across regional public performance societies, international mechanical registries, and streaming platforms.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
-            {arabSocieties.map((soc) => (
+            {globalCoverage.map((soc) => (
               <div
                 key={soc.name}
-                className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/40 transition-colors flex items-center gap-3 shadow-xs"
+                className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 transition-colors flex items-center gap-3 shadow-2xs"
               >
-                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0 text-emerald-400 font-bold text-xs">
+                <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 shrink-0 text-emerald-800 font-bold text-xs">
                   {soc.name.split(' ')[0]}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-200">{soc.name}</h4>
-                  <p className="text-[11px] text-slate-400">{soc.label}</p>
+                  <h4 className="font-bold text-sm text-slate-800">{soc.name}</h4>
+                  <p className="text-[11px] text-slate-500">{soc.label}</p>
                 </div>
               </div>
             ))}
@@ -400,101 +396,86 @@ export default function Landing() {
           <div className="text-center pt-2">
             <Link
               to="/search"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-semibold transition-all shadow-2xs"
             >
-              <span>{isRTL ? 'استعلام دليل الجمعيات والهيئات العربية ←' : 'Browse All Supported Societies →'}</span>
+              <span>{isRTL ? 'استعلام دليل الجمعيات والهيئات العربية ←' : 'Browse All Societies in Search Tool →'}</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Live Interactive Preview / Simulation Section */}
-      <section id="estimator-preview" className="relative z-10 py-16 bg-gradient-to-b from-slate-900/60 to-slate-950 border-t border-slate-800/80">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                  {isRTL ? 'معاينة حية للمحرك' : 'Engine Live Preview'}
-                </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">
-                  {isRTL ? 'كيف يعمل فحص السميع في ثوانٍ معدودة؟' : 'How elsamee3 Works in Seconds'}
-                </h3>
+      {/* How It Works Section - Clean 3-Step Flow */}
+      <section id="how-it-works" className="py-16 bg-slate-50/60 border-t border-slate-200/80">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
+              {isRTL ? 'طريقة الاستخدام' : 'Simple 3-Step Workflow'}
+            </span>
+            <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900">
+              {isRTL ? 'كيف يعمل فحص السميع في ثوانٍ معدودة؟' : 'How elsamee3 Protects Your Work in Seconds'}
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-blue font-bold flex items-center justify-center font-mono text-sm border border-blue-200">
+                01
               </div>
-              <Link
-                to="/search"
-                className="px-5 py-2.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-1.5"
-              >
-                <span>{isRTL ? 'جرّب بنفسك الآن' : 'Test Live Yourself'}</span>
-                <ArrowIcon size={16} />
-              </Link>
+              <h4 className="font-bold text-base text-slate-900">
+                {isRTL ? '1. إدخال المصنف أو الكلمات' : '1. Input Work or Lyrics'}
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {isRTL
+                  ? 'اكتب مقطعاً من كلمات القصيدة، أو ارفع ملفك الصوتي أو الصق رابط فيديو يوتيوب مشتبه به.'
+                  : 'Paste a lyrics stanza, upload an audio track, or provide a suspected video URL.'}
+              </p>
             </div>
 
-            {/* Steps Workflow */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center font-mono text-sm">
-                  01
-                </div>
-                <h4 className="font-bold text-base text-white">
-                  {isRTL ? '1. إدخال المصنف أو الكلمات' : '1. Input Work or Lyrics'}
-                </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {isRTL
-                    ? 'اكتب مقطعاً من كلمات القصيدة، أو ارفع ملفك الصوتي أو الصق رابط فيديو يوتيوب مشتبه به.'
-                    : 'Paste a poetry stanza, upload an audio track, or provide a suspected video URL.'}
-                </p>
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center font-mono text-sm border border-purple-200">
+                02
               </div>
+              <h4 className="font-bold text-base text-slate-900">
+                {isRTL ? '2. استخراج البصمة والمطابقة' : '2. Forensic Hash & Matching'}
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {isRTL
+                  ? 'يقوم المحرك بتوليد هاش SHA-256 مشفر والبحث فوراً في قواعد بيانات المصنفات والكاتالوجات الدولية.'
+                  : 'The engine generates SHA-256 cryptographic proof and matches against catalogs in real-time.'}
+              </p>
+            </div>
 
-              <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center font-mono text-sm">
-                  02
-                </div>
-                <h4 className="font-bold text-base text-white">
-                  {isRTL ? '2. استخراج البصمة والمطابقة' : '2. Forensic Hash & Matching'}
-                </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {isRTL
-                    ? 'يقوم المحرك بتوليد هاش SHA-256 مشفر والبحث فوراً في قواعد بيانات المصنفات والكاتالوجات الرقمية.'
-                    : 'The engine generates SHA-256 cryptographic proof and matches against catalogs in real-time.'}
-                </p>
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 font-bold flex items-center justify-center font-mono text-sm border border-emerald-200">
+                03
               </div>
-
-              <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center font-mono text-sm">
-                  03
-                </div>
-                <h4 className="font-bold text-base text-white">
-                  {isRTL ? '3. الشهادة واحتساب التعويض' : '3. Certificate & Damages'}
-                </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {isRTL
-                    ? 'استخرج شهادة إثبات الأسبقية الرسمية، واحسب بدقة المبالغ المسروقة وصغ إشعار إزالة قانوني.'
-                    : 'Receive your authorship certificate, calculate stolen royalties, and generate DMCA notices.'}
-                </p>
-              </div>
+              <h4 className="font-bold text-base text-slate-900">
+                {isRTL ? '3. الشهادة واحتساب التعويض' : '3. Certificate & Damages'}
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {isRTL
+                  ? 'استخرج شهادة إثبات الأسبقية الرسمية، واحسب بدقة المبالغ المسروقة وصغ إشعار إزالة قانوني.'
+                  : 'Receive your authorship certificate, calculate stolen royalties, and generate DMCA notices.'}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Final Prominent Call To Action Banner */}
-      <section className="relative z-10 py-20 overflow-hidden">
+      <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-blue-900/60 via-indigo-900/50 to-slate-900 border border-blue-500/30 shadow-2xl space-y-6 relative overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
-
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-md">
-              <Sparkles size={14} className="text-cyan-300" />
-              <span>{isRTL ? 'مرحلة البيتا المفتوحة (Open Beta)' : 'Free Open Beta Access'}</span>
+          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-blue-50 via-indigo-50/40 to-slate-50 border border-blue-200 shadow-sm space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-blue-900 border border-blue-200 text-xs font-semibold shadow-2xs">
+              <Sparkles size={14} className="text-brand-blue" />
+              <span>{isRTL ? 'مرحلة البيتا المفتوحة (Open Beta)' : 'Free Open Beta Access Worldwide'}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               {isRTL ? 'ابدأ حماية مصنفاتك الإبداعية الآن مجاناً' : 'Start Protecting Your Creative Works Free Today'}
             </h2>
 
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
               {isRTL
                 ? 'لا تنتظر حتى يتم اقتباس لحنك أو سرقة كلماتك. افحص مصنفاتك واستخرج شهادة إثبات الأسبقية في ثوانٍ.'
                 : 'Do not wait for your melody to be copied or your lyrics to be stolen. Run your forensic scan now.'}
@@ -503,14 +484,14 @@ export default function Landing() {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/search"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-sm sm:text-base shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-blue hover:bg-blue-700 text-white font-extrabold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
-                <Zap size={18} className="text-brand-blue fill-brand-blue" />
+                <Zap size={18} className="fill-white" />
                 <span>{isRTL ? 'تشغيل الأداة الرئيسية فوراً (Beta)' : 'Launch Main Beta Tool'}</span>
               </Link>
               <Link
                 to="/register"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600/40 hover:bg-blue-600/60 border border-blue-400/40 text-white font-bold text-sm transition-all"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-bold text-sm transition-all shadow-2xs"
               >
                 {isRTL ? 'إنشاء حساب دائم في الخزنة' : 'Create Vault Account'}
               </Link>
@@ -519,38 +500,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-slate-800/80 bg-slate-950 py-10 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <Logo theme="dark" size="sm" />
-            <p className="text-[11px] text-slate-400">
-              {isRTL
-                ? 'السميع (elsamee3): المنصة السيادية لحماية حقوق الملكية الفكرية والبصمة الصوتية للمبدعين العرب.'
-                : 'elsamee3: Sovereign copyright protection & forensic acoustic vault for creators.'}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-6 text-slate-400 font-medium">
-            <Link to="/search" className="hover:text-white transition-colors">
-              {isRTL ? 'البحث والبصمة' : 'Search & Fingerprint'}
-            </Link>
-            <Link to="/estimator" className="hover:text-white transition-colors">
-              {isRTL ? 'حاسبة التعويضات' : 'Damages Auditor'}
-            </Link>
-            <Link to="/login" className="hover:text-white transition-colors">
-              {isRTL ? 'تسجيل الدخول' : 'Sign In'}
-            </Link>
-            <Link to="/register" className="hover:text-white transition-colors">
-              {isRTL ? 'إنشاء حساب' : 'Register'}
-            </Link>
-          </div>
-
-          <div className="text-[11px] text-slate-400">
-            © {new Date().getFullYear()} elsamee3. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      {/* Universal Footer with Mandatory O3 Smart Solutions Attribution */}
+      <Footer variant="full" />
     </div>
   );
 }

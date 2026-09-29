@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import Logo from './Logo';
+
+import { Sparkles, Globe } from 'lucide-react';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -27,16 +30,16 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { isRTL } = useLanguage();
 
   const links = [
-    { to: '/', icon: <LayoutDashboard size={20} />, label: t('nav.dashboard') },
-    { to: '/works', icon: <Music size={20} />, label: t('nav.myWorks') },
+    { to: '/dashboard', icon: <LayoutDashboard size={20} />, label: t('nav.dashboard') },
     { to: '/search', icon: <Search size={20} />, label: t('nav.search') },
     { to: '/estimator', icon: <Calculator size={20} />, label: t('nav.estimator') },
+    { to: '/works', icon: <Music size={20} />, label: t('nav.myWorks') },
     { to: '/monitoring', icon: <Radar size={20} />, label: t('nav.monitoring') },
     { to: '/alerts', icon: <Bell size={20} />, label: t('nav.alerts') },
     { to: '/takedowns', icon: <FileText size={20} />, label: t('nav.takedowns') },
     { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
+    { to: '/', icon: <Sparkles size={19} className="text-cyan-400" />, label: isRTL ? 'كتالوج المنصة (الرئيسية)' : 'Platform Catalog (Home)' },
   ];
-
 
   return (
     <aside
@@ -48,11 +51,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       `}
     >
       {/* Sidebar Header with Close button on mobile */}
-      <div className="p-5 sm:p-6 flex items-center justify-between border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-bold text-brand-blue tracking-wider">{t('app.name')}</h1>
-          <p className="text-xs text-slate-400 mt-1">{t('app.tagline')}</p>
-        </div>
+      <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-800">
+        <Logo theme="dark" size="sm" />
         {onClose && (
           <button
             onClick={onClose}

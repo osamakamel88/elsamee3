@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
+import Logo from '../components/Logo';
 import api from '../api/client';
 import { Shield, Mail, Lock, Loader2, LogIn, Sparkles } from 'lucide-react';
 
@@ -34,7 +35,7 @@ export default function Login() {
       if (data.access_token && data.user) {
         login(data.access_token, data.user);
         toast.success(isRTL ? `مرحباً بك مجدداً، ${data.user.fullName || data.user.email}!` : `Welcome back!`);
-        navigate('/');
+        navigate('/dashboard');
       } else {
         toast.error(isRTL ? 'فشل تسجيل الدخول، تحقق من البيانات.' : 'Login failed. Please verify credentials.');
       }
@@ -56,7 +57,7 @@ export default function Login() {
       country: 'EG',
     });
     toast.success(isRTL ? 'تم تسجيل الدخول السريع كفنان تجريبي!' : 'Signed in as Demo Artist!');
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (
@@ -66,13 +67,10 @@ export default function Login() {
       </div>
 
       <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/80 w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-blue to-indigo-600 text-white shadow-md shadow-blue-500/20 mb-1">
-            <Shield size={24} />
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-1">
+            <Logo size="lg" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {t('app.name') || 'السميع (elsamee3)'}
-          </h1>
           <p className="text-xs sm:text-sm text-slate-500">
             {isRTL
               ? 'تسجيل الدخول إلى خزنة الملكية الفكرية وإدارة المصنفات'

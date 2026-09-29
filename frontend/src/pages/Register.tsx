@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
+import Logo from '../components/Logo';
 import api from '../api/client';
 import { Shield, User, Mail, Lock, Globe, Music, Loader2, CheckCircle2 } from 'lucide-react';
 
@@ -74,7 +75,7 @@ export default function Register() {
             ? 'تم إنشاء حسابك وحفظه في قاعدة البيانات بنجاح!'
             : 'Account registered and saved in database successfully!'
         );
-        navigate('/');
+        navigate('/dashboard');
       } else {
         toast.success(isRTL ? 'تم التسجيل بنجاح، يرجى تسجيل الدخول.' : 'Registered successfully! Please log in.');
         navigate('/login');
@@ -96,13 +97,10 @@ export default function Register() {
 
       <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/80 w-full max-w-lg space-y-6">
         {/* Header with Logo */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-blue to-indigo-600 text-white shadow-md shadow-blue-500/20 mb-1">
-            <Shield size={24} />
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-1">
+            <Logo size="lg" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {isRTL ? 'إنشاء حساب جديد في السميع' : 'Join elsamee3 Vault'}
-          </h1>
           <p className="text-xs sm:text-sm text-slate-500">
             {isRTL
               ? 'سجّل حسابك لحماية ألحانك، أشعارك، وأعمالك الفنية واستخراج شهادات إثبات الأسبقية.'

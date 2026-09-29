@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import LanguageToggle from './LanguageToggle';
+import Logo from './Logo';
 import { Menu, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -40,9 +41,7 @@ export default function Layout() {
             >
               <Menu size={22} />
             </button>
-            <span className="font-bold text-lg text-brand-blue tracking-tight">
-              {t('app.name') || 'السميع'}
-            </span>
+            <Logo size="sm" />
           </div>
 
           {/* Desktop trust indicator */}

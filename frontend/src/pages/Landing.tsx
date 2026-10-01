@@ -190,20 +190,20 @@ export default function Landing() {
       num: '04',
       title: '24/7 monitoring sentinel',
       titleAr: 'نظام المراقبة المستمرة',
-      desc: 'Dual-engine monitoring that tracks songwriter publishing splits across collecting societies (The MLC, SACEM, DistroKid) and runs continuous acoustic matching across streaming and social platforms.',
-      descAr: 'نظام مراقبة مزدوج يتتبع حصص النشر عبر جمعيات التحصيل ويجري مطابقة صوتية مستمرة عبر منصات البث والتواصل الاجتماعي.',
+      desc: 'Dual-engine monitoring that tracks songwriter publishing splits across collecting societies (The MLC, SACEM) and distributors (DistroKid, RouteNote), while running continuous acoustic matching across streaming and social platforms.',
+      descAr: 'نظام مراقبة مزدوج يتتبع حصص النشر عبر جمعيات التحصيل (The MLC، SACEM) والموزعين (DistroKid، RouteNote) ويجري مطابقة صوتية مستمرة عبر منصات البث.',
       features: [
-        'Writer & Repertoire Sentinel: track publishing splits at The MLC, SACEM, DistroKid',
+        'Writer & Repertoire Sentinel: track splits at The MLC, SACEM, DistroKid, RouteNote',
         'Platform scanners: YouTube, Spotify, SoundCloud, TikTok acoustic matching',
+        'DistroKid TSV import — parse real "Excruciating Detail" royalty exports',
         'IPI number tracking and co-writer attribution management',
-        'One-click demo seed with complete songwriter catalog (38+ works)',
         'Real-time scan status, last scan timestamps, and match counters',
       ],
       featuresAr: [
-        'مراقب الكتّاب: تتبع حصص النشر في The MLC و SACEM و DistroKid',
+        'مراقب الكتّاب: تتبع حصص النشر في The MLC و SACEM و DistroKid و RouteNote',
         'ماسحات المنصات: يوتيوب وسبوتيفاي وساوند كلاود وتيك توك',
+        'استيراد ملفات DistroKid TSV — تحليل تقارير العائدات الحقيقية',
         'تتبع رقم IPI وإدارة إسناد المؤلفين المشاركين',
-        'بذر تجريبي بنقرة واحدة مع كتالوج كامل (38+ عمل)',
         'حالة المسح المباشر وطوابع الوقت وعدادات المطابقة',
       ],
       image: '/showcase/monitoring.jpg',
@@ -293,6 +293,9 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-ash">
             <a href="#capabilities" className="hover:text-ink transition-colors duration-200">
               {isRTL ? 'القدرات' : 'Capabilities'}
+            </a>
+            <a href="#why" className="hover:text-ink transition-colors duration-200">
+              {isRTL ? 'لماذا السميع' : 'Why elsamee3'}
             </a>
             <a href="#how" className="hover:text-ink transition-colors duration-200">
               {isRTL ? 'كيف يعمل' : 'How It Works'}
@@ -405,6 +408,218 @@ export default function Landing() {
           {showcaseItems.map((item) => (
             <ShowcaseItem key={item.num} {...item} isRTL={isRTL} />
           ))}
+        </div>
+      </section>
+
+
+      {/* ─── Platforms & Integrations strip ─── */}
+      <section className="border-y border-smoke bg-mist/50">
+        <div className="max-w-6xl mx-auto px-6 py-16 space-y-10">
+          <div className="text-center space-y-2">
+            <p className="text-xs font-medium tracking-widest uppercase text-accent">
+              {isRTL ? 'المنصات والتكاملات' : 'Platforms & Integrations'}
+            </p>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-display">
+              {isRTL ? 'متصل بالمنصات التي يستخدمها الفنانون' : 'Connected to the platforms artists use'}
+            </h3>
+          </div>
+
+          <div className="space-y-6">
+            {/* Distributors */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium tracking-widest uppercase text-ash text-center">
+                {isRTL ? 'الموزعون الرقميون' : 'Digital Distributors'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {['DistroKid', 'RouteNote', 'TuneCore', 'CD Baby', 'Ditto Music'].map((p) => (
+                  <span key={p} className="px-4 py-2 bg-white border border-smoke rounded-full text-xs font-medium text-ink">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Streaming */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium tracking-widest uppercase text-ash text-center">
+                {isRTL ? 'منصات البث' : 'Streaming Platforms'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {['YouTube', 'Spotify', 'Apple Music', 'SoundCloud', 'TikTok', 'Deezer', 'Anghami', 'Amazon Music'].map((p) => (
+                  <span key={p} className="px-4 py-2 bg-white border border-smoke rounded-full text-xs font-medium text-ink">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Databases */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium tracking-widest uppercase text-ash text-center">
+                {isRTL ? 'قواعد البيانات والسجلات' : 'Repertoire Databases'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {['MusicBrainz', 'Discogs', 'The MLC', 'SACEM Paris', 'AcoustID', 'Openverse', 'Apple Music API'].map((p) => (
+                  <span key={p} className="px-4 py-2 bg-white border border-smoke rounded-full text-xs font-medium text-ink">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Arab Societies */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium tracking-widest uppercase text-ash text-center">
+                {isRTL ? 'جمعيات المؤلفين والملحنين العربية' : 'Arab Collecting Societies'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {[
+                  { code: 'SACERAU', country: isRTL ? 'مصر' : 'Egypt' },
+                  { code: 'SAIP', country: isRTL ? 'السعودية' : 'Saudi' },
+                  { code: 'ONDA', country: isRTL ? 'الجزائر' : 'Algeria' },
+                  { code: 'BMDA', country: isRTL ? 'المغرب' : 'Morocco' },
+                  { code: 'OTPDA', country: isRTL ? 'تونس' : 'Tunisia' },
+                  { code: 'SACEM Liban', country: isRTL ? 'لبنان' : 'Lebanon' },
+                ].map((s) => (
+                  <span key={s.code} className="px-4 py-2 bg-white border border-accent/20 rounded-full text-xs font-medium text-accent">
+                    {s.code} <span className="text-ash font-normal">({s.country})</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─── Why elsamee3 — Competitive differentiation ─── */}
+      <section id="why" className="py-24 sm:py-32">
+        <div className="max-w-6xl mx-auto px-6 space-y-20">
+
+          {/* Header */}
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <p className="text-xs font-medium tracking-widest uppercase text-accent">
+              {isRTL ? 'لماذا السميع' : 'Why elsamee3'}
+            </p>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-display leading-tight">
+              {isRTL ? (
+                <>أداة واحدة بدلاً من <span className="font-serif italic text-accent">عشر أدوات</span></>
+              ) : (
+                <>One tool instead of <span className="font-serif italic text-accent">ten</span></>
+              )}
+            </h2>
+            <p className="text-base text-ash max-w-2xl mx-auto">
+              {isRTL
+                ? 'أدوات حماية حقوق النشر الحالية إما مغلقة أو باهظة الثمن أو تغطي قناة واحدة فقط. السميع يجمع كل ما تحتاجه في مكان واحد — مجاناً.'
+                : 'Existing copyright tools are either enterprise-only, locked behind expensive subscriptions, or cover just one channel. elsamee3 combines everything in one place — free.'}
+            </p>
+          </div>
+
+          {/* Differentiators grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-smoke rounded-2xl overflow-hidden border border-smoke">
+            {[
+              {
+                title: isRTL ? 'عربي أولاً' : 'Arab-first',
+                desc: isRTL
+                  ? 'المنصة الوحيدة المتكاملة مع جمعيات SACERAU و SAIP و ONDA و BMDA. واجهة عربية كاملة RTL ليست مجرد ترجمة.'
+                  : 'The only platform integrated with SACERAU, SAIP, ONDA, BMDA societies. Full Arabic RTL interface — not a translation afterthought.',
+                tag: isRTL ? 'حصري' : 'Exclusive',
+              },
+              {
+                title: isRTL ? 'الكل في واحد' : 'All-in-one',
+                desc: isRTL
+                  ? 'بحث + بصمة صوتية + مراقبة + تدقيق عائدات + DMCA + خزنة رقمية. المنافسون يقدمون أداة واحدة أو اثنتين فقط.'
+                  : 'Search + fingerprint + monitoring + revenue audit + DMCA + vault. Competitors offer only 1–2 of these.',
+                tag: isRTL ? '7 أدوات' : '7 tools',
+              },
+              {
+                title: isRTL ? 'مجاني تماماً' : 'Free during beta',
+                desc: isRTL
+                  ? 'YouTube Content ID يتطلب عقد توزيع. Audible Magic و Pex مخصصة للشركات. HAAWK يأخذ 20% من عائداتك. السميع مجاني.'
+                  : 'Content ID requires a distribution deal. Audible Magic & Pex are enterprise-only. HAAWK takes 20% of revenue. elsamee3 is free.',
+                tag: isRTL ? 'صفر تكلفة' : '\$0',
+              },
+              {
+                title: isRTL ? 'إثبات أسبقية تشفيري' : 'Cryptographic proof',
+                desc: isRTL
+                  ? 'لا يوجد منافس يقدم شهادات SHA-256 لإثبات أسبقية الكلمات والأشعار. ميزة فريدة للشعراء وكتاب الأغاني.'
+                  : 'No competitor offers SHA-256 authorship certificates for lyrics. A unique feature for poets and songwriters.',
+                tag: isRTL ? 'فريدة' : 'Unique',
+              },
+              {
+                title: isRTL ? 'استيراد بيانات الموزعين' : 'Distributor imports',
+                desc: isRTL
+                  ? 'استيراد ملفات DistroKid TSV وبيانات RouteNote لتحويل التدقيق من تقديرات إلى أرقام حقيقية مدققة.'
+                  : 'Import DistroKid TSV exports and RouteNote data to turn estimates into audited real numbers.',
+                tag: 'DistroKid + RouteNote',
+              },
+              {
+                title: isRTL ? 'إطار قانوني متعدد' : 'Multi-jurisdiction',
+                desc: isRTL
+                  ? 'DMCA أمريكي + قانون مصري 82/2002 + اتفاقية بيرن + المادة 17 من الاتحاد الأوروبي. ليس قالباً واحداً للجميع.'
+                  : 'US DMCA + Egyptian Law 82/2002 + Berne Convention + EU Article 17. Not a one-size-fits-all template.',
+                tag: isRTL ? '4 أنظمة' : '4 frameworks',
+              },
+            ].map((d) => (
+              <div key={d.title} className="bg-white p-8 sm:p-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold tracking-tight">{d.title}</h3>
+                  <span className="text-[10px] font-mono text-accent bg-accent/5 px-2 py-0.5 rounded-full">{d.tag}</span>
+                </div>
+                <p className="text-sm text-ash leading-relaxed">{d.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Comparison table */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold tracking-display text-center">
+              {isRTL ? 'مقارنة مع المنافسين' : 'Head-to-head comparison'}
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-smoke rounded-xl overflow-hidden">
+                <thead>
+                  <tr className="bg-mist text-xs font-medium text-ash">
+                    <th className="text-start px-4 py-3 font-medium">{isRTL ? 'الميزة' : 'Feature'}</th>
+                    <th className="px-4 py-3 font-bold text-accent">elsamee3</th>
+                    <th className="px-4 py-3 font-medium">Content ID</th>
+                    <th className="px-4 py-3 font-medium">HAAWK</th>
+                    <th className="px-4 py-3 font-medium">DistroKid</th>
+                    <th className="px-4 py-3 font-medium">RouteNote</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-smoke">
+                  {[
+                    { feature: isRTL ? 'بحث موحد في السجلات' : 'Unified repertoire search',        e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'بصمة صوتية' : 'Acoustic fingerprinting',                   e: true, c: true,  h: true,  d: false, r: false },
+                    { feature: isRTL ? 'شهادة SHA-256 للكلمات' : 'SHA-256 lyrics certificate',      e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'تدقيق العائدات المسروقة' : 'Stolen revenue audit',          e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'مولّد DMCA قانوني' : 'Legal DMCA generator',                e: true, c: false, h: true,  d: false, r: false },
+                    { feature: isRTL ? 'مراقبة 24/7' : '24/7 monitoring',                           e: true, c: true,  h: true,  d: false, r: false },
+                    { feature: isRTL ? 'دعم عربي كامل' : 'Full Arabic support',                     e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'جمعيات المؤلفين العربية' : 'Arab CMO directory',             e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'استيراد بيانات الموزعين' : 'Distributor data import',        e: true, c: false, h: false, d: false, r: false },
+                    { feature: isRTL ? 'مجاني' : 'Free tier',                                       e: true, c: false, h: false, d: false, r: true  },
+                    { feature: isRTL ? 'توزيع الموسيقى' : 'Music distribution',                     e: false,c: false, h: false, d: true,  r: true  },
+                  ].map((row) => (
+                    <tr key={row.feature} className="hover:bg-mist/60 transition-colors">
+                      <td className="px-4 py-3 text-start font-medium">{row.feature}</td>
+                      <td className="px-4 py-3 text-center">{row.e ? <span className="text-accent font-bold">&#10003;</span> : <span className="text-smoke">—</span>}</td>
+                      <td className="px-4 py-3 text-center">{row.c ? <span className="text-ink">&#10003;</span> : <span className="text-smoke">—</span>}</td>
+                      <td className="px-4 py-3 text-center">{row.h ? <span className="text-ink">&#10003;</span> : <span className="text-smoke">—</span>}</td>
+                      <td className="px-4 py-3 text-center">{row.d ? <span className="text-ink">&#10003;</span> : <span className="text-smoke">—</span>}</td>
+                      <td className="px-4 py-3 text-center">{row.r ? <span className="text-ink">&#10003;</span> : <span className="text-smoke">—</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[11px] text-ash text-center max-w-lg mx-auto">
+              {isRTL
+                ? 'DistroKid و RouteNote خدمات توزيع موسيقي ممتازة — لكنها لا تحمي حقوقك من السرقة. السميع يكملها ولا يحل محلها.'
+                : 'DistroKid and RouteNote are excellent distribution services — but they don\'t protect your rights from theft. elsamee3 complements them, it doesn\'t replace them.'}
+            </p>
+          </div>
         </div>
       </section>
 

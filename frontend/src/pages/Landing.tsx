@@ -492,6 +492,227 @@ export default function Landing() {
       </section>
 
 
+      {/* ─── Better Together — DistroKid / RouteNote / elsamee3 ─── */}
+      <section id="ecosystem" className="py-24 sm:py-32 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 space-y-20">
+
+          {/* Header */}
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <p className="text-xs font-medium tracking-widest uppercase text-accent">
+              {isRTL ? 'النظام البيئي' : 'The Ecosystem'}
+            </p>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-display leading-tight">
+              {isRTL ? (
+                <>توزيع الموسيقى <span className="font-serif italic text-accent">شيء</span>، وحمايتها <span className="font-serif italic text-accent">شيء آخر</span></>
+              ) : (
+                <>Distributing music is <span className="font-serif italic text-accent">one thing</span>. Protecting it is <span className="font-serif italic text-accent">another</span>.</>
+              )}
+            </h2>
+            <p className="text-base text-ash max-w-2xl mx-auto">
+              {isRTL
+                ? 'DistroKid و RouteNote يوصلان موسيقاك للعالم. السميع يحميها بعد أن تصل. ثلاث أدوات تعمل معاً — ليست بدائل لبعضها.'
+                : 'DistroKid and RouteNote deliver your music to the world. elsamee3 protects it once it\'s out there. Three tools working together — not replacements.'}
+            </p>
+          </div>
+
+          {/* Visual pipeline — 3 role cards */}
+          <div className="relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden lg:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-smoke via-accent/30 to-smoke -translate-y-1/2 z-0" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 relative z-10">
+              {/* DistroKid */}
+              <div className="group relative bg-white border border-smoke rounded-2xl p-8 space-y-5 hover:border-ink/20 transition-colors">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-ash">{isRTL ? 'الخطوة 1' : 'Step 1'}</span>
+                  <span className="w-8 h-8 rounded-full bg-mist flex items-center justify-center text-xs font-bold">1</span>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight">DistroKid</h3>
+                <p className="text-xs font-medium tracking-widest uppercase text-ash">
+                  {isRTL ? 'التوزيع' : 'Distribution'}
+                </p>
+                <p className="text-sm text-ash leading-relaxed">
+                  {isRTL
+                    ? 'يرفع موسيقاك إلى +150 منصة بث: سبوتيفاي، أبل ميوزيك، أنغامي، ديزر، تيك توك. تدفع اشتراكاً سنوياً وتحتفظ بـ 100% من العائدات.'
+                    : 'Uploads your music to 150+ streaming platforms: Spotify, Apple Music, Anghami, Deezer, TikTok. Pay a flat annual fee, keep 100% of royalties.'}
+                </p>
+                <div className="space-y-1.5 pt-2">
+                  {(isRTL
+                    ? ['رفع غير محدود للأغاني', 'توزيع لـ +150 منصة', 'تقسيم العائدات بين المتعاونين', 'تقارير بصيغة TSV']
+                    : ['Unlimited song uploads', 'Distribution to 150+ stores', 'Royalty splits for collaborators', 'Exportable TSV reports']
+                  ).map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-xs text-ash">
+                      <span className="w-1 h-1 rounded-full bg-ink/30" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-3 border-t border-smoke">
+                  <p className="text-[11px] text-ash">
+                    {isRTL ? '⚠️ لا يحمي من السرقة أو القرصنة' : '⚠️ Does not protect against theft or piracy'}
+                  </p>
+                </div>
+              </div>
+
+              {/* RouteNote */}
+              <div className="group relative bg-white border border-smoke rounded-2xl p-8 space-y-5 hover:border-ink/20 transition-colors">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-ash">{isRTL ? 'الخطوة 1' : 'Step 1'}</span>
+                  <span className="w-8 h-8 rounded-full bg-mist flex items-center justify-center text-xs font-bold">1</span>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight">RouteNote</h3>
+                <p className="text-xs font-medium tracking-widest uppercase text-ash">
+                  {isRTL ? 'التوزيع' : 'Distribution'}
+                </p>
+                <p className="text-sm text-ash leading-relaxed">
+                  {isRTL
+                    ? 'يوزع موسيقاك مجاناً (مقابل 15% من العائدات) أو بنظام مدفوع (تحتفظ بـ 100%). يدعم YouTube Content ID وأدوات تسويق PUSH.fm.'
+                    : 'Distributes your music for free (15% commission) or premium (keep 100%). Supports YouTube Content ID and PUSH.fm marketing tools.'}
+                </p>
+                <div className="space-y-1.5 pt-2">
+                  {(isRTL
+                    ? ['خطة مجانية — صفر تكلفة مقدمة', 'Content ID ليوتيوب', 'أدوات تسويق PUSH.fm', 'تقارير شهرية على لوحة التحكم']
+                    : ['Free tier — zero upfront cost', 'YouTube Content ID', 'PUSH.fm marketing tools', 'Monthly dashboard reports']
+                  ).map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-xs text-ash">
+                      <span className="w-1 h-1 rounded-full bg-ink/30" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-3 border-t border-smoke">
+                  <p className="text-[11px] text-ash">
+                    {isRTL ? '⚠️ لا يكشف السرقات خارج يوتيوب' : '⚠️ Does not detect theft beyond YouTube'}
+                  </p>
+                </div>
+              </div>
+
+              {/* elsamee3 */}
+              <div className="group relative bg-ink text-white rounded-2xl p-8 space-y-5 ring-1 ring-accent/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-white/50">{isRTL ? 'الخطوة 2' : 'Step 2'}</span>
+                  <span className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-bold text-white">2</span>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight">elsamee3</h3>
+                <p className="text-xs font-medium tracking-widest uppercase text-accent">
+                  {isRTL ? 'الحماية والتدقيق والإنفاذ' : 'Protection, Audit & Enforcement'}
+                </p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  {isRTL
+                    ? 'يبدأ بعد التوزيع: يراقب المنصات لكشف الاستخدام غير المرخص، يدقق العائدات المسروقة، يوثق أسبقية الكلمات، ويصيغ إشعارات إزالة قانونية.'
+                    : 'Picks up where distribution ends: monitors platforms for unlicensed use, audits stolen revenue, certifies lyrics authorship, and generates legal takedown notices.'}
+                </p>
+                <div className="space-y-1.5 pt-2">
+                  {(isRTL
+                    ? ['بحث موحد + بصمة صوتية', 'تدقيق مباشر للعائدات المسروقة', 'شهادات SHA-256 للكلمات', 'مولّد DMCA + مراقبة 24/7', 'استيراد تقارير DistroKid TSV', 'دليل جمعيات المؤلفين العربية']
+                    : ['Unified search + acoustic fingerprinting', 'Live stolen revenue auditing', 'SHA-256 lyrics certificates', 'DMCA generator + 24/7 monitoring', 'DistroKid TSV report import', 'Arab collecting societies directory']
+                  ).map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-xs text-white/70">
+                      <span className="w-1 h-1 rounded-full bg-accent" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-3 border-t border-white/10">
+                  <p className="text-[11px] text-accent font-medium">
+                    {isRTL ? '✓ مجاني بالكامل في المرحلة التجريبية' : '✓ Completely free during beta'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Workflow narrative */}
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-smoke bg-mist/50 p-8 sm:p-12 space-y-8">
+              <h3 className="text-lg font-bold tracking-tight text-center">
+                {isRTL ? 'كيف تعمل الأدوات الثلاث معاً' : 'How the three tools work together'}
+              </h3>
+
+              <div className="space-y-6">
+                {[
+                  {
+                    step: '1',
+                    label: isRTL ? 'وزّع' : 'Distribute',
+                    platform: 'DistroKid / RouteNote',
+                    desc: isRTL
+                      ? 'ارفع أغنيتك وألبومك عبر DistroKid أو RouteNote. سيصل عملك إلى سبوتيفاي وأبل ميوزيك وأنغامي وعشرات المنصات.'
+                      : 'Upload your song or album via DistroKid or RouteNote. Your work reaches Spotify, Apple Music, Anghami, and dozens of platforms.',
+                  },
+                  {
+                    step: '2',
+                    label: isRTL ? 'سجّل وراقب' : 'Register & monitor',
+                    platform: 'elsamee3',
+                    desc: isRTL
+                      ? 'سجّل عملك في خزنة السميع مع أكواد ISRC و ISWC. فعّل المراقبة المستمرة لكشف أي استخدام غير مرخص عبر جميع المنصات.'
+                      : 'Register your work in elsamee3\'s vault with ISRC/ISWC codes. Activate continuous monitoring to detect unauthorized use across all platforms.',
+                  },
+                  {
+                    step: '3',
+                    label: isRTL ? 'دقّق العائدات' : 'Audit revenue',
+                    platform: 'elsamee3',
+                    desc: isRTL
+                      ? 'استورد تقارير DistroKid TSV إلى السميع. قارن العائدات الفعلية بالمشاهدات والاستماعات المكتشفة. اكشف الفجوات والعائدات المسروقة.'
+                      : 'Import your DistroKid TSV exports into elsamee3. Compare actual royalties against detected views and streams. Uncover gaps and stolen revenue.',
+                  },
+                  {
+                    step: '4',
+                    label: isRTL ? 'أنفذ حقوقك' : 'Enforce your rights',
+                    platform: 'elsamee3',
+                    desc: isRTL
+                      ? 'عند اكتشاف انتهاك: صِغ إشعار DMCA قانوني، احسب التعويضات المستحقة، وأرسل الإشعار مباشرة عبر بوابات المنصات.'
+                      : 'When infringement is detected: generate a legal DMCA notice, calculate statutory damages, and submit directly through platform portals.',
+                  },
+                ].map((item) => (
+                  <div key={item.step} className="flex gap-5">
+                    <div className="shrink-0 flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                        item.platform === 'elsamee3'
+                          ? 'bg-accent text-white'
+                          : 'bg-ink text-white'
+                      }`}>
+                        {item.step}
+                      </div>
+                      {item.step !== '4' && <div className="w-px h-full bg-smoke mt-2" />}
+                    </div>
+                    <div className="pb-6 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">{item.label}</span>
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                          item.platform === 'elsamee3'
+                            ? 'bg-accent/10 text-accent'
+                            : 'bg-ink/5 text-ash'
+                        }`}>
+                          {item.platform}
+                        </span>
+                      </div>
+                      <p className="text-sm text-ash leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Key insight callout */}
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <blockquote className="text-xl sm:text-2xl font-bold tracking-display leading-snug">
+              {isRTL ? (
+                <>"DistroKid و RouteNote <span className="text-ash">يوصلان موسيقاك للجمهور.</span> السميع <span className="text-accent">يتأكد أنك تحصل على حقوقك الكاملة.</span>"</>
+              ) : (
+                <>"DistroKid and RouteNote <span className="text-ash">get your music to listeners.</span> elsamee3 <span className="text-accent">makes sure you get paid for it.</span>"</>
+              )}
+            </blockquote>
+            <p className="text-xs text-ash">
+              {isRTL
+                ? 'السميع لا يوزع الموسيقى ولا ينافس الموزعين. هو الطبقة التالية بعد التوزيع: الحماية والتدقيق والإنفاذ.'
+                : 'elsamee3 doesn\'t distribute music and doesn\'t compete with distributors. It\'s the layer after distribution: protection, auditing, and enforcement.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+
       {/* ─── Why elsamee3 — Competitive differentiation ─── */}
       <section id="why" className="py-24 sm:py-32">
         <div className="max-w-6xl mx-auto px-6 space-y-20">
